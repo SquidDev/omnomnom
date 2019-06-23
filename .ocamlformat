@@ -1,0 +1,10 @@
+margin = 100
+type-decl = sparse
+break-separators = after
+break-string-literals = newlines
+break-cases=fit
+doc-comments = before
+field-space = loose
+space-around-collection-expressions
+sequence-style=terminator
+wrap-comments

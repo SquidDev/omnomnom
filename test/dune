@@ -1,3 +1,7 @@
-(executable
+(test
  (name test)
- (libraries omnomnom))
+ (libraries omnomnom)
+ (deps (source_tree data))
+ (action (run %{test} --base-dir "../" --display)))
+
+(data_only_dirs data)

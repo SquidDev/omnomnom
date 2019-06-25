@@ -12,7 +12,7 @@ let () =
                   contents ^ "\nOh no " ^ Printf.sprintf "%08x" (Random.bits ())
                 else contents ^ "\nOh yes!"
               in
-              Tests.Golden.of_directory work ?rename:None ~directory:"test/data/golden"
+              Tests.Golden.of_directory work ?rename:None ~directory:"data/golden"
                 ~extension:".txt")
            ];
          group "Some arbitrary tests"

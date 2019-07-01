@@ -1,5 +1,5 @@
 (library
  (name omnomnomCore)
- (libraries cmdliner lwt)
+ (libraries cmdliner lwt mtime)
  (preprocess
   (pps lwt_ppx)))

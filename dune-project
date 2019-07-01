@@ -1,5 +1,6 @@
 (lang dune 1.10)
 (using fmt 1.1)
+(implicit_transitive_deps false)
 
 (generate_opam_files true)
 (authors SquidDev)
@@ -18,5 +19,6 @@
     ; Runtime
     lwt
     lwt_ppx
+    react
     cmdliner
     patience_diff))

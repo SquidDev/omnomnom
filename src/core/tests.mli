@@ -1,23 +1,41 @@
-(** An error produced by a test. *)
+(** Information about an error produced by a test. *)
 type error =
-  { message : Format.formatter -> unit;
-        (** A short description about this error.
-
-            As this is a function (rather than a string), and accepts a {!Format.formatter}, one
-            can safely use colours and other formatting features without worrying how they'll be
-            presented to the user. *)
-    backtrace : Printexc.raw_backtrace option
+  { backtrace : Printexc.raw_backtrace option
         (** An optional backtrace to where this error occurred. *)
-    }
+  }
 
-(** The result of executing a test. *)
-type result =
+(** The outcome of executing this test. Namely, whether it is successful or not. *)
+type outcome =
   | Pass  (** This test completed without issue. *)
   | Skipped  (** This test was not executed. *)
   | Failed of error  (** One or more assertions in this test failed. *)
   | Errored of error  (** An unexpected error occurred. *)
 
-(** Create a new {!Errored} {!result} from an exception. *)
+(** The result of this test. Includes the {!outcome}, and additional information such as duration. *)
+type result =
+  { outcome : outcome;  (** This test's outcome. *)
+    message : (Format.formatter -> unit) option;
+        (** A message about this test, detailing information about the test execution or its reason
+            for failure.
+
+            As this is a function (rather than a string), and accepts a {!Format.formatter}, one
+            can safely use colours and other formatting features without worrying how they'll be
+            presented to the user. *)
+    time : Mtime.span
+        (** The time taken to execute this test. This can be left at {!Mtime.Span.zero} and the
+            test runner will fill it in. *)
+  }
+
+(** The current state of test execution. *)
+type status =
+  | NotStarted  (** This test has not started execution yet. *)
+  | Running  (** This test is currently being run. *)
+  | Finished of result  (** This test has finished, and produced a test {!result}. *)
+
+(** Construct a result from an outcome. *)
+val result : ?message:(Format.formatter -> unit) option -> outcome -> result
+
+(** Create a new {!Errored} {!result} from an exception and a starting time. *)
 val result_of_exn : exn -> result
 
 (** A tree of tests to run.

@@ -4,7 +4,7 @@ open Tests
 module type Reporter = sig
   include Configurable
 
-  val run : options -> (result Lwt.t tree -> result tree Lwt.t -> bool Lwt.t) option
+  val run : options -> (status Signal.sink tree -> result tree Lwt.t -> bool Lwt.t) option
 end
 
 type reporter = (module Reporter)
@@ -28,6 +28,5 @@ let compose_reporters left right =
             (fun p c ->
               let a = a p c and b = b p c in
               let%lwt a_ok = a and b_ok = b in
-              Lwt.return (a_ok && b_ok) )
-  end
-  : Reporter )
+              Lwt.return (a_ok && b_ok))
+  end : Reporter )

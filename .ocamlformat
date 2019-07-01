@@ -2,9 +2,12 @@ margin = 100
 type-decl = sparse
 break-separators = after
 break-string-literals = newlines
-break-cases=fit
+break-cases = toplevel
 doc-comments = before
 field-space = loose
-space-around-collection-expressions
-sequence-style=terminator
+space-around-arrays
+space-around-lists
+space-around-records
+space-around-variants
+sequence-style = terminator
 wrap-comments

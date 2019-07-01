@@ -18,10 +18,10 @@ let () =
          group "Some arbitrary tests"
            [ simple_test "Will assert a value" (fun () ->
                  assert (List.hd [ 0 ] = 0);
-                 () );
+                 ());
              simple_test "Will fail" (fun () ->
                  let _ = List.hd [] in
-                 () );
+                 ());
              pending "A test which needs to be written." ()
            ]
        ]

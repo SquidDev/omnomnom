@@ -43,7 +43,7 @@ let display_diff diff out =
               | Prev xs -> Array.iter minus xs
               | Next xs -> Array.iter plus xs
               | Replace (prev, next) -> Array.iter minus prev; Array.iter plus next
-              | Unified xs -> Array.iter same xs ) )
+              | Unified xs -> Array.iter same xs))
 
 let run ~regenerate ~action ~directory ~input_name ~output_name =
   (* Read the input and output *)
@@ -57,7 +57,7 @@ let run ~regenerate ~action ~directory ~input_name ~output_name =
   (* And resolve the actual output + expected output. *)
   let%lwt output_actual = Lwt.bind input_contents (action ~name:input_name) in
   let%lwt output_expected = output_expected in
-  if output_actual = output_expected then Lwt.return Pass
+  if output_actual = output_expected then Lwt.return (result Pass)
   else
     (* Generate a diff and pretty-print it. This is horrible, and really should be using some
        pretty-printing library. *)
@@ -75,7 +75,7 @@ let run ~regenerate ~action ~directory ~input_name ~output_name =
         Lwt_io.with_file ~mode:Lwt_io.output output_path (fun ch -> Lwt_io.write ch output_actual)
       else Lwt.return_unit
     in
-    Lwt.return (Failed { message = display_diff diff; backtrace = None })
+    Lwt.return (result ~message:(Some (display_diff diff)) (Failed { backtrace = None }))
 
 let of_file action ~directory ~input_name ~output_name =
   test_case input_name
@@ -85,8 +85,7 @@ let of_file action ~directory ~input_name ~output_name =
       let options = options
 
       let run { regenerate } = run ~regenerate ~action ~directory ~input_name ~output_name
-    end
-    : Test )
+    end : Test )
 
 let out x = x ^ ".out"
 
@@ -104,7 +103,7 @@ let of_directory action ?(rename = out) ~directory ~extension =
     !names |> List.sort String.compare
     |> List.map (fun child ->
            of_file action ~directory ~input_name:child
-             ~output_name:(Filename.remove_extension child |> rename) )
+             ~output_name:(Filename.remove_extension child |> rename))
     |> group directory
   with Unix.Unix_error _ as e ->
     let res = result_of_exn e in

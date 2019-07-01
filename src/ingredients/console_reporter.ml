@@ -1,4 +1,5 @@
 open OmnomnomCore.Tests
+module S = OmnomnomCore.Signal
 module F = OmnomnomCore.Formatting
 
 type display =
@@ -11,7 +12,7 @@ type options =
     base_dir : string;
     timing : bool;
     colour : bool
-    }
+  }
 
 let options =
   let open Cmdliner in
@@ -88,7 +89,7 @@ let setup_color_printer out =
             let style = get_style s in
             stack := style :: !stack;
             style
-        | x -> prev.mark_open_stag x );
+        | x -> prev.mark_open_stag x);
       mark_close_stag =
         (function
         | F.Style _ ->
@@ -100,20 +101,24 @@ let setup_color_printer out =
               | _ -> failwith "Popping from an empty stack"
             in
             "\027[0m" ^ style
-        | x -> prev.mark_close_stag x )
+        | x -> prev.mark_close_stag x)
     }
 
 (** Attempt to resolve source code for the erroring function, and displays that along with a
     backtrace. *)
 let format_trace ~base_dir ~(out : Format.formatter) x =
-  let ( >>= ) x f = match x with None -> None | Some x -> f x in
+  let ( >>= ) x f =
+    match x with
+    | None -> None
+    | Some x -> f x
+  in
   let rec times f i =
     if i <= 0 then []
     else
       let x = f () in
       x :: times f (i - 1)
   in
-  x >>= Printexc.backtrace_slots
+  Printexc.backtrace_slots x
   >>= Array.fold_left
         (fun head slot ->
           (* Find a file from which we can read the appropriate lines. *)
@@ -141,7 +146,7 @@ let format_trace ~base_dir ~(out : Format.formatter) x =
               in
               close_in ch; res
             with Sys_error _ -> None )
-          | x, _ -> x )
+          | x, _ -> x)
         None
   >>= (fun (line, before, contents, after) ->
         (* And read them! *)
@@ -149,10 +154,12 @@ let format_trace ~base_dir ~(out : Format.formatter) x =
         List.iter (fun x -> Format.fprintf out "%s | %s@\n" padding x) before;
         F.printf F.(DullColor Red) out "%d | %s@\n" line contents;
         List.iter
-          (function None -> () | Some l -> Format.fprintf out "%s | %s@\n" padding l)
+          (function
+            | None -> ()
+            | Some l -> Format.fprintf out "%s | %s@\n" padding l)
           after;
         Format.pp_force_newline out ();
-        None )
+        None)
   |> ignore
 
 let pp_indent out indent action =
@@ -173,12 +180,14 @@ let run { display; colour; base_dir; _ } =
       let out = Format.std_formatter in
       if colour then setup_color_printer out;
       (* Print the progress of the tests as they come in. *)
-      let print_progress_dot result =
-        let style, dot = get_dot result in
-        F.printf style out "%s" dot
+      let print_progress_dot _ = function
+        | Finished { outcome; _ } ->
+            let style, dot = get_dot outcome in
+            F.printf style out "%s" dot
+        | _ -> ()
       in
       let rec print_progress = function
-        | TestCase (_, p) -> Lwt.on_success p print_progress_dot
+        | TestCase (_, p) -> S.on p print_progress_dot
         | TestGroup (_, tests) -> List.iter print_progress tests
       in
       print_progress tests;
@@ -186,11 +195,14 @@ let run { display; colour; base_dir; _ } =
       let%lwt tests = results in
       Format.print_newline ();
       (* Now print the summary *)
-      let is_success = function Pass | Skipped -> true | Failed _ | Errored _ -> false in
-      let format_test name result =
-        ( (if is_success result then 1 else 0),
+      let is_success = function
+        | Pass | Skipped -> true
+        | Failed _ | Errored _ -> false
+      in
+      let format_test name { outcome; message; _ } =
+        ( (if is_success outcome then 1 else 0),
           1,
-          if is_success result && display <> Tests then
+          if is_success outcome && display <> Tests && Option.is_none message then
             (* Skip tests which passed when in a quieter mode.. *)
             None
           else
@@ -198,29 +210,31 @@ let run { display; colour; base_dir; _ } =
             Some
               (fun () ->
                 let style, icon =
-                  match result with
+                  match outcome with
                   | Pass -> F.(DullColor Green, "✓")
                   | Skipped -> F.(DullColor Yellow, "○")
                   | Failed _ | Errored _ -> F.(DullColor Red, "✘")
                 in
                 F.printf style out "%s" icon;
                 Format.fprintf out " %s" name;
-                match result with
+                ( match message with
+                | None -> ()
+                | Some message ->
+                    Format.pp_force_newline out ();
+                    pp_indent out 2 (fun () -> message out) );
+                match outcome with
                 | Pass | Skipped -> ()
                 | Failed e | Errored e -> (
-                    Format.pp_force_newline out ();
-                    pp_indent out 2
-                    @@ fun () ->
-                    let { message; backtrace } = e in
-                    (* Print the message and backtrace. *)
-                    message out;
-                    Format.pp_force_newline out ();
-                    format_trace ~base_dir ~out backtrace;
-                    match backtrace with
-                    | None -> ()
-                    | Some bt ->
-                        Format.pp_force_newline out ();
-                        Format.pp_print_text out (Printexc.raw_backtrace_to_string bt) ) ) )
+                  match e with
+                  | { backtrace = None } -> ()
+                  | { backtrace = Some backtrace } ->
+                      Format.pp_force_newline out ();
+                      pp_indent out 2
+                      @@ fun () ->
+                      (* Print the message and backtrace. *)
+                      format_trace ~base_dir ~out backtrace;
+                      Format.pp_force_newline out ();
+                      Format.pp_print_text out (Printexc.raw_backtrace_to_string backtrace) )) )
       in
       let format_group name pass total children =
         ( pass,
@@ -239,8 +253,8 @@ let run { display; colour; base_dir; _ } =
                 List.iteri
                   (fun i f ->
                     if i > 0 then Format.pp_force_newline out ();
-                    f () )
-                  children ) )
+                    f ())
+                  children) )
       in
       let rec print_tests = function
         | TestCase (name, result) -> format_test name result
@@ -249,11 +263,17 @@ let run { display; colour; base_dir; _ } =
               List.fold_right
                 (fun child (pass, total, children) ->
                   let p, t, c = print_tests child in
-                  (pass + p, total + t, match c with None -> children | Some x -> x :: children) )
+                  ( pass + p,
+                    total + t,
+                    match c with
+                    | None -> children
+                    | Some x -> x :: children ))
                 children (0, 0, [])
             in
             format_group name pass total children
       in
       let _, _, fn = print_tests tests in
-      (match fn with Some fn -> fn (); Format.pp_force_newline out () | None -> ());
-      return true )
+      ( match fn with
+      | Some fn -> fn (); Format.pp_force_newline out ()
+      | None -> () );
+      return true)

@@ -18,35 +18,54 @@ let run ?(reporter = (module Ingredients.ConsoleReporter : Ingredients.Reporter)
   let rec build_tree tasks = function
     | TestCase (name, test) ->
         let module Test = (val test : Test) in
-        let promise, resolve = task () in
-        ( TestCase (name, promise),
-          (promise >|= fun x -> TestCase (name, x)),
+        let source, sink = Signal.create NotStarted in
+        ( TestCase (name, sink),
           Cmdliner.Term.(
-            const (fun args xs -> (resolve, fun () -> Test.run args) :: xs) $ Test.options $ tasks)
-        )
+            const (fun args xs -> (source, fun () -> Test.run args) :: xs)
+            $ Test.options $ tasks) )
     | TestGroup (name, children) ->
-        let children, children_p, tasks =
+        let children, tasks =
           List.fold_left
-            (fun (children, children_p, tasks) child ->
-              let child, child_p, tasks = build_tree tasks child in
-              (child :: children, child_p :: children_p, tasks) )
-            ([], [], tasks) children
+            (fun (children, tasks) child ->
+              let child, tasks = build_tree tasks child in
+              (child :: children, tasks))
+            ([], tasks) children
         in
-        let rec collect acc = function
-          | [] -> Lwt.return (TestGroup (name, acc))
-          | x :: xs -> x >>= fun x -> collect (x :: acc) xs
-        in
-        (TestGroup (name, List.rev children), collect [] children_p, tasks)
+        (TestGroup (name, List.rev children), tasks)
   in
-  let run tests result tasks options =
+  let rec finish_tree = function
+    | TestCase (name, sink) ->
+       (match Signal.get sink with
+       | Finished r -> TestCase (name, r)
+       | _ -> failwith (Printf.sprintf "Test %S hasn't finished" name))
+    | TestGroup (name, children) -> TestGroup(name, List.map finish_tree children)
+  in
+  let run tests tasks options =
     match Reporter.run options with
     | None -> `Error (true, "No test reporter for these options.")
     | Some f ->
+        let result, resolve = Lwt.task () in
         let future = f tests result in
+        let pending = ref (List.length tasks) in
+        let finish () =
+          pending := !pending - 1;
+          if !pending = 0 then
+            Lwt.wakeup_later resolve (finish_tree tests)
+        in
         tasks
-        |> List.iter (fun (resolve, action) ->
-               try on_any (action ()) (wakeup resolve) (fun e -> wakeup resolve (result_of_exn e))
-               with e -> wakeup resolve (result_of_exn e) );
+        |> List.iter (fun (source, action) ->
+               Signal.update source Running;
+               let counter = Mtime_clock.counter () in
+               let finish result =
+                 let duration = Mtime_clock.count counter in
+                 let result = { result with time = duration } in
+                 Signal.update source (Finished result);
+                 Signal.plug source;
+                 finish ()
+               in
+               try
+                 on_any (action ()) finish (fun e -> finish (result_of_exn e))
+               with e -> finish (result_of_exn e));
         if Lwt_main.run future then `Ok () else `Error (false, "")
   in
   (* Small bits of setup. *)
@@ -58,6 +77,6 @@ let run ?(reporter = (module Ingredients.ConsoleReporter : Ingredients.Reporter)
     let doc = "A fancy test runner based on Tasty." in
     info "omnomnom" ~doc ~exits:default_exits
   in
-  let tests, results, tasks = build_tree (const []) tests in
-  let results = results >>= fun r -> Lwt.pause () >|= fun () -> r in
-  exit @@ eval (const (run tests results) $ tasks $ Reporter.options, info)
+  let tests, tasks = build_tree (const []) tests in
+  (* let results = results >>= fun r -> Lwt.pause () >|= fun () -> r in *)
+  exit @@ eval (const (run tests) $ tasks $ Reporter.options, info)

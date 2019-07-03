@@ -1,4 +1,0 @@
-(library
- (name omnomnom)
- (libraries cmdliner lwt lwt.unix mtime.clock.os omnomnomCore omnomnomIngredients
-   omnomnomTests))

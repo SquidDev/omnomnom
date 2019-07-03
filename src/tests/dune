@@ -1,5 +1,0 @@
-(library
- (name omnomnomTests)
- (libraries cmdliner lwt lwt.unix patience_diff unix omnomnomCore)
- (preprocess
-  (pps lwt_ppx)))

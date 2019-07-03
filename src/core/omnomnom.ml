@@ -1,18 +1,38 @@
-include OmnomnomCore
-open Tests
+(** An OCaml test framework inspired by Tasty.
 
-module Tests = struct
-  include Tests
-  module Golden = OmnomnomTests.Golden
-end
+    {2 Usage} 
+    {[
+open Omnomnom.Tests
+
+let () = Omnomnom.run @@ group "omnomnom"
+  [ simple_test "Will assert a value" (fun () ->
+        assert (List.hd [ 0 ] = 0);
+        ());
+    simple_test "Will fail" (fun () ->
+        let _ = List.hd [] in
+        ());
+    pending "A test which needs to be written." ()
+  ]
+    ]} *)
+
+[@@@ocamlformat "wrap-comments=false"]
+
+open Tests
+include Core
+module Formatting = Formatting
+module Signal = Signal
+module Tests = Tests
 
 module Ingredients = struct
   include Ingredients
-  module ConsoleReporter = OmnomnomIngredients.Console_reporter
+
+  (** The default reporter (as used by {!run}). This prints tests progress and results to the
+      console in a colourful manner. *)
+  module ConsoleReporter : Reporter = Console_reporter
 end
 
-let run ?(reporter = (module Ingredients.ConsoleReporter : Ingredients.Reporter))
-    (tests : test tree) : unit =
+(** Run a series of tests, with the provided reporter. *)
+let run ?(reporter = (module Console_reporter : Ingredients.Reporter)) (tests : test tree) : unit =
   let module Reporter = (val reporter) in
   let open Lwt in
   let rec build_tree tasks = function
@@ -21,8 +41,8 @@ let run ?(reporter = (module Ingredients.ConsoleReporter : Ingredients.Reporter)
         let source, sink = Signal.create NotStarted in
         ( TestCase (name, sink),
           Cmdliner.Term.(
-            const (fun args xs -> (source, fun () -> Test.run args) :: xs)
-            $ Test.options $ tasks) )
+            const (fun args xs -> (source, fun () -> Test.run args) :: xs) $ Test.options $ tasks)
+        )
     | TestGroup (name, children) ->
         let children, tasks =
           List.fold_left
@@ -34,11 +54,11 @@ let run ?(reporter = (module Ingredients.ConsoleReporter : Ingredients.Reporter)
         (TestGroup (name, List.rev children), tasks)
   in
   let rec finish_tree = function
-    | TestCase (name, sink) ->
-       (match Signal.get sink with
-       | Finished r -> TestCase (name, r)
-       | _ -> failwith (Printf.sprintf "Test %S hasn't finished" name))
-    | TestGroup (name, children) -> TestGroup(name, List.map finish_tree children)
+    | TestCase (name, sink) -> (
+      match Signal.get sink with
+      | Finished r -> TestCase (name, r)
+      | _ -> failwith (Printf.sprintf "Test %S hasn't finished" name) )
+    | TestGroup (name, children) -> TestGroup (name, List.map finish_tree children)
   in
   let run tests tasks options =
     match Reporter.run options with
@@ -49,8 +69,7 @@ let run ?(reporter = (module Ingredients.ConsoleReporter : Ingredients.Reporter)
         let pending = ref (List.length tasks) in
         let finish () =
           pending := !pending - 1;
-          if !pending = 0 then
-            Lwt.wakeup_later resolve (finish_tree tests)
+          if !pending = 0 then Lwt.wakeup_later resolve (finish_tree tests)
         in
         tasks
         |> List.iter (fun (source, action) ->
@@ -63,8 +82,7 @@ let run ?(reporter = (module Ingredients.ConsoleReporter : Ingredients.Reporter)
                  Signal.plug source;
                  finish ()
                in
-               try
-                 on_any (action ()) finish (fun e -> finish (result_of_exn e))
+               try on_any (action ()) finish (fun e -> finish (result_of_exn e))
                with e -> finish (result_of_exn e));
         if Lwt_main.run future then `Ok () else `Error (false, "")
   in

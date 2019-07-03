@@ -1,5 +1,0 @@
-(library
- (name omnomnomIngredients)
- (libraries cmdliner lwt omnomnomCore)
- (preprocess
-  (pps lwt_ppx)))

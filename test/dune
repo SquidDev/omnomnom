@@ -1,6 +1,6 @@
 (test
  (name test)
- (libraries lwt omnomnom omnomnomTests omnomnomCore)
+ (libraries lwt omnomnom omnomnom.golden)
  (deps
   (source_tree data))
  (action

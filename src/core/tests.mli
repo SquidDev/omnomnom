@@ -1,3 +1,12 @@
+(** The various core data structures for building and inspecting tests and their results.
+
+    All tests are held within a {!tree}, which is just a basic labelled tree, where the leaves are
+    {!test} s, and the internal nodes are groups of tests (or other test trees).
+
+    Tests return a {!type:result}, most likely using the {!val:result} factory function. This is
+    used to determine the {!outcome} of the test, as well as other useful information such as how
+    long it took and what (if any) output this test produced. *)
+
 (** Information about an error produced by a test. *)
 type error =
   { backtrace : Printexc.raw_backtrace option
@@ -26,7 +35,8 @@ type result =
             test runner will fill it in. *)
   }
 
-(** The current state of test execution. *)
+(** The current state of an executing test. This is provided to various ingredients in order track
+    the current execution progress. *)
 type status =
   | NotStarted  (** This test has not started execution yet. *)
   | Running  (** This test is currently being run. *)
@@ -35,14 +45,15 @@ type status =
 (** Construct a result from an outcome. *)
 val result : ?message:(Format.formatter -> unit) option -> outcome -> result
 
-(** Create a new {!Errored} {!result} from an exception and a starting time. *)
+(** Create a new {!Errored} {!result} from an exception. *)
 val result_of_exn : exn -> result
 
 (** A tree of tests to run.
 
-    Typically, these will be parameterised over {!Test}, but this will change when executing tests.
+    Typically, these will be parameterised over {!type:test}. However, we-reuse the same structure
+    for representing test execution progress, and the final test result.
 
-    You should not create {!tree}s directly - instead prefer the {!test} and {!group} factories.*)
+    You should not create {!tree} s directly - instead prefer the {!test} and {!group} factories.*)
 type 'a tree =
   | TestCase of string * 'a
   | TestGroup of string * 'a tree list

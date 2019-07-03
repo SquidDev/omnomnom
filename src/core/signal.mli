@@ -1,6 +1,6 @@
-(** A minimal implementation of signals.
+(** Provides a continuously updating data point, and a way to monitor changes to it.
 
-    Similar to React, but home grown because of course it is. *)
+    Similar to React's signal implementation, but home grown because of course it is. *)
 
 (** A source of data.
 

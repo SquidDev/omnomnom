@@ -1,4 +1,4 @@
-open OmnomnomCore.Tests
+open Omnomnom.Tests
 
 type process = name:string -> string -> string Lwt.t
 
@@ -26,7 +26,7 @@ let read_all input =
 
 let display_diff diff out =
   let module Diff = Patience_diff_lib.Patience_diff in
-  let module F = OmnomnomCore.Formatting in
+  let module F = Omnomnom.Formatting in
   (* The eta-expansion here is important, otherwise the formatting codes are only emitted once. *)
   let same x = Format.fprintf out "  %s@\n" x
   and minus x = F.printf F.(DullColor Red) out "- %s@\n" x

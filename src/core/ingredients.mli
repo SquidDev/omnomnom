@@ -10,10 +10,11 @@ module type Reporter = sig
       The subscriber function accepts the test tree in several forms:
 
       - A partial tree (a tree of result event sinks), useful for monitoring the current state of
-      test execution.
+        test execution.
 
-      - A complete tree (a promise of a result tree), useful for getting the final state of
-      executing. This can be derived from the partial tree, and so is offered as a convenience.
+      {ul
+       {- A complete tree (a promise of a result tree), useful for getting the final state of
+          executing. This can be derived from the partial tree, and so is offered as a convenience.}}
 
       This function should return when all tests have completed execution, with a boolean
       determining whether it considers all tests having passed. *)

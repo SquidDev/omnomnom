@@ -1,8 +1,7 @@
-open Omnomnom
 open Omnomnom.Tests
 
 let () =
-  run
+  Omnomnom.run
   @@ group "omnomnom"
        [ group "Can perform golden tests"
            [ (let work ~name contents =
@@ -12,7 +11,7 @@ let () =
                   contents ^ "\nOh no " ^ Printf.sprintf "%08x" (Random.bits ())
                 else contents ^ "\nOh yes!"
               in
-              Tests.Golden.of_directory work ?rename:None ~directory:"data/golden"
+              OmnomnomGolden.of_directory work ?rename:None ~directory:"data/golden"
                 ~extension:".txt")
            ];
          group "Some arbitrary tests"

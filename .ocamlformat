@@ -11,3 +11,4 @@ space-around-records
 space-around-variants
 sequence-style = terminator
 wrap-comments
+parse-docstrings

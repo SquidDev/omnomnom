@@ -1,6 +1,6 @@
-open OmnomnomCore.Tests
-module S = OmnomnomCore.Signal
-module F = OmnomnomCore.Formatting
+open Tests
+module S = Signal
+module F = Formatting
 
 type display =
   | Tests

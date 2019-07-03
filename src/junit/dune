@@ -1,0 +1,9 @@
+(library
+ (name omnomnomJUnit)
+ (public_name omnomnom-junit)
+ (libraries cmdliner lwt junit mtime omnomnom)
+ (preprocess
+  (pps lwt_ppx)))
+
+(documentation
+ (package omnomnom-junit))

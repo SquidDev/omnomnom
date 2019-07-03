@@ -1,0 +1,19 @@
+lib: [
+  "_build/install/default/lib/omnomnom-golden/META"
+  "_build/install/default/lib/omnomnom-golden/dune-package"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.a"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.cma"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.cmi"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.cmt"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.cmti"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.cmx"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.cmxa"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.cmxs"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.ml"
+  "_build/install/default/lib/omnomnom-golden/omnomnomGolden.mli"
+  "_build/install/default/lib/omnomnom-golden/opam"
+]
+doc: [
+  "_build/install/default/doc/omnomnom-golden/LICENSE"
+  "_build/install/default/doc/omnomnom-golden/README.md"
+]

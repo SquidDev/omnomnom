@@ -1,9 +1,9 @@
 (test
  (name test)
- (libraries lwt omnomnom omnomnom.golden)
+ (libraries lwt omnomnom omnomnom-golden omnomnom-junit)
  (deps
   (source_tree data))
  (action
-  (run %{test} --base-dir "../" --display)))
+  (run %{test} --base-dir "../" --display --junit)))
 
 (data_only_dirs data)

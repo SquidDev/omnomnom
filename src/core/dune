@@ -5,4 +5,5 @@
  (preprocess
   (pps lwt_ppx)))
 
-(documentation)
+(documentation
+ (package omnomnom))

@@ -2,6 +2,8 @@ open Omnomnom.Tests
 
 let () =
   Omnomnom.run
+    ~reporter:
+      Omnomnom.Ingredients.(compose_reporters (module ConsoleReporter) (module OmnomnomJUnit))
   @@ group "omnomnom"
        [ group "Can perform golden tests"
            [ (let work ~name contents =

@@ -62,7 +62,7 @@ consider critical to a test framework.
  - [ ] Test filters: both test paths and a include/exclude tag mechanism.
  - [ ] Test listing
  - [ ] Rerun failed tests
- - [ ] JUnit test reporter.
+ - [x] JUnit test reporter.
  - [ ] Test Anything Protocol reporter.
 
 ### Test integration

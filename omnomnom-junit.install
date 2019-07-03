@@ -1,0 +1,23 @@
+lib: [
+  "_build/install/default/lib/omnomnom-junit/META"
+  "_build/install/default/lib/omnomnom-junit/dune-package"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJUnit.ml"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJUnit.mli"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit.a"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit.cma"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit.cmi"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit.cmt"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit.cmx"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit.cmxa"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit.cmxs"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit.ml"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit__OmnomnomJUnit.cmi"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit__OmnomnomJUnit.cmt"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit__OmnomnomJUnit.cmti"
+  "_build/install/default/lib/omnomnom-junit/omnomnomJunit__OmnomnomJUnit.cmx"
+  "_build/install/default/lib/omnomnom-junit/opam"
+]
+doc: [
+  "_build/install/default/doc/omnomnom-junit/LICENSE"
+  "_build/install/default/doc/omnomnom-junit/README.md"
+]

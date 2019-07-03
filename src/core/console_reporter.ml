@@ -20,27 +20,26 @@ let options =
   let display =
     value
     & opt ~vopt:Tests (enum [ ("tests", Tests); ("groups", Groups); ("none", Nothing) ]) Nothing
-    & info ~docs:"The Console Reporter" ~doc:"What information to output when running tests."
+    & info ~docs:"Console Reporter" ~doc:"What information to output when running tests."
         [ "display" ]
   in
   let base_dir_env =
-    Term.env_info ~docs:"The Console Reporter"
+    Term.env_info ~docs:"Console Reporter"
       ~doc:"The base directory from which to resolve source files." "OM_BASE_DIR"
   in
   let base_dir =
     value & opt string "."
-    & info ~docs:"The Console Reporter"
-        ~doc:"The base directory from which to resolve source files." ~env:base_dir_env
-        [ "base-dir" ]
+    & info ~docs:"Console Reporter" ~doc:"The base directory from which to resolve source files."
+        ~env:base_dir_env [ "base-dir" ]
   in
   let timing =
     value & flag
-    & info ~docs:"The Console Reporter"
-        ~doc:"Whether to display timings along with the test output." [ "time"; "t" ]
+    & info ~docs:"Console Reporter" ~doc:"Whether to display timings along with the test output."
+        [ "time"; "t" ]
   in
   let colour =
     value & flag
-    & info ~docs:"The Console Reporter" ~doc:"Whether to use colours in the test output."
+    & info ~docs:"Console Reporter" ~doc:"Whether to use colours in the test output."
         [ "no-colour"; "C" ]
   in
   Term.(

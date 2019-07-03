@@ -2,7 +2,6 @@
 /dune-workspace
 
 # Build artefact's
-/omnomnom.opam
-/omnomnom.install
+/*.opam
 /_*
 .merlin

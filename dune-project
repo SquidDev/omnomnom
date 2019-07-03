@@ -3,13 +3,14 @@
 (implicit_transitive_deps false)
 
 (generate_opam_files true)
-(authors SquidDev)
+(authors "SquidDev")
 (license MIT)
 (source (github squiddev/omnomnom))
+(maintainers "Jonathan Coates")
 
 (package
   (name omnomnom)
-  (synopsis "Another tiny test framework.")
+  (synopsis "Another tiny test framework")
   (description "A small test framework, inspired by Tasty.")
   (depends
     (ocaml (>= 4.08))

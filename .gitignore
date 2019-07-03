@@ -1,4 +1,8 @@
+# Config files
+/dune-workspace
+
+# Build artefact's
+/omnomnom.opam
+/omnomnom.install
 /_*
 .merlin
-*.opam
-*.install

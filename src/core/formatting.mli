@@ -32,7 +32,7 @@ type style =
   | BrightColor of ansi_color
       (** Tint the styled string's foreground with a "bright" color.
 
-          When unit ANSI, this will be in the 30-37 range with the bold flag. *)
+          When unit ANSI, this will be in the 90-97 range with the bold flag. *)
   | Underlined  (** Underline this string. *)
   | Styled of style list  (** Apply multiple styles. *)
 

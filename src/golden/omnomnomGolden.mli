@@ -8,6 +8,7 @@
 
     See {{:https://ro-che.info/articles/2017-12-04-golden-tests} this article} for more information
     about golden testing. *)
+
 open Omnomnom.Tests
 
 (** The function to apply to the input file's contents. Should simply return the computed result.
@@ -23,9 +24,9 @@ val of_file : process -> directory:string -> input_name:string -> output_name:st
 
     One may optionally supply a rename function, which takes the filename (without the extension)
     and returns the name of the golden file. If not specified, we will look for a file with an
-    ".out" extension.
+    [.out] extension.
 
-    For instance, the following will use all ".json" files within the "test-data" directory as
+    For instance, the following will use all [.json] files within the [test-data] directory as
     inputs.
 
     {[

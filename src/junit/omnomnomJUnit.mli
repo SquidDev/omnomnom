@@ -7,8 +7,11 @@
     {[
   Omnomnom.run
     ~reporter:
-      Omnomnom.Ingredients.(compose_reporters (module ConsoleReporter) (module OmnomnomJUnit))
+      Omnomnom.Ingredients.(compose_reporters console_reporter OmnomnomJUnit.reporter)
   @@ group "omnomnom"
     ]} *)
 
 include Omnomnom.Ingredients.Reporter
+
+(** An alias to this module, but as a value. *)
+val reporter : Omnomnom.Ingredients.reporter

@@ -1,6 +1,7 @@
 (** Provides a continuously updating data point, and a way to monitor changes to it.
 
-    Similar to React's signal implementation, but home grown because of course it is. *)
+    Similar in concept to React's signals, though with a rather different API. I'm truly sorry for
+    reinventing the wheel. *)
 
 (** A source of data.
 

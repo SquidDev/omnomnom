@@ -27,12 +27,20 @@ module Ingredients = struct
   include Ingredients
 
   (** The default reporter (as used by {!run}). This prints tests progress and results to the
-      console in a colourful manner. *)
+      console in a colourful manner.
+
+      See {!console_reporter} for a more convenient to use version. *)
   module ConsoleReporter : Reporter = Console_reporter
+
+  (** The default reporter (as used by {!run}). This prints tests progress and results to the
+      console in a colourful manner.
+
+      This is a first-class module version of {!ConsoleReporter}.*)
+  let console_reporter : reporter = (module Console_reporter)
 end
 
 (** Run a series of tests, with the provided reporter. *)
-let run ?(reporter = (module Console_reporter : Ingredients.Reporter)) (tests : test tree) : unit =
+let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
   let module Reporter = (val reporter) in
   let open Lwt in
   let rec build_tree tasks = function

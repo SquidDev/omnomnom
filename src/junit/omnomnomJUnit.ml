@@ -1,7 +1,5 @@
 open Omnomnom.Tests
 
-type options = { path : string option }
-
 let writable_file =
   let parse s =
     if Sys.file_exists s && Sys.is_directory s then
@@ -13,16 +11,6 @@ let writable_file =
       else Ok s
   in
   Cmdliner.Arg.conv ~docv:"FILE" (parse, Format.pp_print_string)
-
-let options =
-  let open Cmdliner in
-  let open Cmdliner.Arg in
-  let path =
-    value
-    & opt ~vopt:(Some "report.xml") (some writable_file) None
-    & info ~docs:"JUnit reporter" ~doc:"The JUnit XML file to write to." [ "junit" ]
-  in
-  Term.(const (fun path -> { path }) $ path)
 
 let get_message message { backtrace } =
   let buffer = Buffer.create 16 in
@@ -86,6 +74,24 @@ let run_with path _ results =
   Junit.to_file (Junit.make suites) path;
   Lwt.return true
 
-let run = function
-  | { path = None } -> None
-  | { path = Some path } -> Some (run_with path)
+module Reporter = struct
+  type options = { path : string option }
+
+  let options =
+    let open Cmdliner in
+    let open Cmdliner.Arg in
+    let path =
+      value
+      & opt ~vopt:(Some "report.xml") (some writable_file) None
+      & info ~docs:"JUnit reporter" ~doc:"The JUnit XML file to write to." [ "junit" ]
+    in
+    Term.(const (fun path -> { path }) $ path)
+
+  let run = function
+    | { path = None } -> None
+    | { path = Some path } -> Some (run_with path)
+end
+
+include Reporter
+
+let reporter : Omnomnom.Ingredients.reporter = (module Reporter)

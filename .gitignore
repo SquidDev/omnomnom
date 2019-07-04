@@ -3,5 +3,6 @@
 
 # Build artefact's
 /*.opam
+/*.install
 /_*
 .merlin

@@ -1,9 +1,9 @@
 (library
  (name omnomnomGolden)
- (public_name omnomnom-golden)
- (libraries cmdliner lwt lwt.unix patience_diff unix omnomnom)
+ (public_name omnomnom.golden)
+ (optional)
+ (libraries cmdliner lwt lwt.unix omnomnom patience_diff unix)
  (preprocess
   (pps lwt_ppx)))
 
-(documentation
- (package omnomnom-golden))
+(documentation)

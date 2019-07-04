@@ -1,0 +1,25 @@
+{0 omnomnom}
+
+{1 omnomnom}
+
+{!module-Omnomnom} is the core of Omnomnom's implementation, containing the base
+API, and any ingredients or tests which do not have additional dependencies.
+
+{1 omnomnom.golden}
+
+{!module-OmnomnomGolden} provides a mechanism to write golden tests against
+Omnomnom.
+
+Golden tests run a function against the contents of an input file, and compare
+the output to a "golden" file, containing the expected output.
+
+This depends on the {{:https://opam.ocaml.org/packages/patience_diff/}
+[patience_diff]} package, and is only present when it is installed.
+
+{1 omnomnom.junit}
+
+{!module-OmnomnomJUnit} contains a test reporter which produces JUnit XML files,
+suitable for CI systems such as Azure or Jenkins.
+
+This depends on the {{:https://opam.ocaml.org/packages/junit/} [junit]} package,
+and is only present when it is installed.

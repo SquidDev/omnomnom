@@ -20,33 +20,3 @@
     (lwt  (>= 4.2.1))
     (lwt_ppx (>= 1.2.2))
     (cmdliner (>= 1.0.4))))
-
-(package
-  (name omnomnom-golden)
-  (synopsis "Golden tests for Omnomnom.")
-  (description "Runs a function against the contents of an input file, and compares the output to a \"golden\" file, containing the expected output.")
-  (depends
-    (ocaml (>= 4.08))
-    (dune (and :build (>= 1.10)))
-    (odoc :build)
-    omnomnom
-    (lwt  (>= 4.2.1))
-    (lwt_ppx (>= 1.2.2))
-    (cmdliner (>= 1.0.4))
-    (omnomnom (>= ${version:omnomnom}))
-    (patience_diff (>= 0.12.0))))
-
-(package
-  (name omnomnom-junit)
-  (synopsis "JUnit test reporter for Omnomnom.")
-  (description "A test reporter for Omnomnom which produces JUnit XML files, suitable for use with CI systems such as Jenkins or Azure.")
-  (depends
-    (ocaml (>= 4.08))
-    (dune (and :build (>= 1.10)))
-    (odoc :build)
-    omnomnom
-    (lwt  (>= 4.2.1))
-    (lwt_ppx (>= 1.2.2))
-    (cmdliner (>= 1.0.4))
-    (omnomnom (>= ${version:omnomnom}))
-    (junit (>= 2.0.1))))

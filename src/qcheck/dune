@@ -1,0 +1,9 @@
+(library
+ (name omnomnomQCheck)
+ (public_name omnomnom.qcheck)
+ (optional)
+ (libraries cmdliner lwt omnomnom qcheck-core)
+ (preprocess
+  (pps lwt_ppx)))
+
+(documentation)

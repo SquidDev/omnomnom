@@ -24,5 +24,14 @@ let () =
                  let _ = List.hd [] in
                  ());
              pending "A test which needs to be written." ()
-           ]
+           ];
+         group "QCheck tests"
+           (List.map OmnomnomQCheck.of_qcheck
+              [ QCheck.Test.make ~count:1000 ~name:"list_rev_is_involutive"
+                  QCheck.(list small_nat)
+                  (fun l -> List.rev (List.rev l) = l);
+                QCheck.Test.make ~count:1000 ~name:"my_buggy_test"
+                  QCheck.(list small_nat)
+                  (fun l -> List.rev l = l)
+              ])
        ]

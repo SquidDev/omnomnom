@@ -68,7 +68,7 @@ consider critical to a test framework.
 ### Test integration
  - [ ] Alcotest support
  - [ ] OUnit support
- - [ ] QCheck support
+ - [x] QCheck support
 
 [tasty]: https://github.com/feuerbach/tasty "Modern and extensible testing framework for Haskell"
 [alcotest]: https://github.com/mirage/alcotest/ "A lightweight and colourful test framework"

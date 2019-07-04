@@ -4,10 +4,10 @@
 (generate_opam_files true)
 
 (version 0.1.0)
-(authors "SquidDev")
+(authors "Jonathan Coates")
 (license MIT)
 (source (github squiddev/omnomnom))
-(maintainers "Jonathan Coates")
+(maintainers "Jonathan Coates <jonathan.j.coates@outlook.com>")
 
 (package
   (name omnomnom)
@@ -19,4 +19,8 @@
     (odoc :build)
     (lwt  (>= 4.2.1))
     (lwt_ppx (>= 1.2.2))
-    (cmdliner (>= 1.0.4))))
+    (cmdliner (>= 1.0.4)))
+  (depopts
+    junit
+    patience_diff
+    qcheck-core))

@@ -42,6 +42,7 @@ end
 (** Run a series of tests, with the provided reporter. *)
 let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
   let module Reporter = (val reporter) in
+  let output_file = Filename.temp_file "omnomnom-" "-output" in
   let rec build_tree tasks = function
     | TestCase (name, test) ->
         let module Test = (val test : Test) in
@@ -94,7 +95,23 @@ let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
                  Signal.update source (Finished result);
                  Signal.plug source
                in
-               try finish (action ()) with e -> finish (result_of_exn e));
+               let res, out =
+                 Io_util.with_redirect output_file (fun () ->
+                     try action () with e -> result_of_exn e)
+               in
+               let res =
+                 match out with
+                 | "" -> res
+                 | msg ->
+                     { res with
+                       message =
+                         Some
+                           (fun out ->
+                             Format.pp_print_text out msg;
+                             Option.iter (fun x -> x out) res.message)
+                     }
+               in
+               finish res);
         let ok, children = finish_tree tests in
         callback children;
         if ok then `Ok () else `Error (false, "")
@@ -109,4 +126,5 @@ let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
     info "omnomnom" ~doc ~exits:default_exits
   in
   let tests, tasks = build_tree (const []) tests in
-  exit @@ eval (const (run tests) $ tasks $ Reporter.options, info)
+  let res = eval ~catch:true (const (run tests) $ tasks $ Reporter.options, info) in
+  Sys.remove output_file; exit res

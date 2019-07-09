@@ -21,6 +21,10 @@ let () =
              simple_test "Will fail" (fun () ->
                  let _ = List.hd [] in
                  ());
+             simple_test "Will display output" (fun () ->
+                 Printf.printf "Hello from stdout!\n";
+                 Printf.eprintf "  and stderr.\n";
+                 ());
              pending "A test which needs to be written." ()
            ];
          group "QCheck tests"

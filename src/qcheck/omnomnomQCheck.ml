@@ -39,14 +39,14 @@ let of_qcheck (Q.Test cell) =
         in
         match state with
         | Success ->
-            result ~message:(Some (fun f -> Format.fprintf f "%d tests completed." count)) Pass
+            result ~message:(Some (fun f -> Format.fprintf f "%d trials completed." count)) Pass
         | Failed examples ->
             result
               ~message:
                 (Some
                    (fun f ->
-                     Format.fprintf f "@[Failed after %d tests on ≥ %d cases:@ @[<v>%a@]@]" count
-                       (List.length examples) (pp_list print_failure) examples))
+                     Format.fprintf f "@[Failed after %d trials on ≥ %d cases:@ @[<v>%a@]@]"
+                       count (List.length examples) (pp_list print_failure) examples))
               (Failed { backtrace = None })
         | Error (example, err, bt) ->
             result
@@ -54,7 +54,7 @@ let of_qcheck (Q.Test cell) =
                 (Some
                    (fun f ->
                      Format.fprintf f
-                       "Errored after %d tests: %s\n%s\n%a"
+                       "Errored after %d trials : %s\n%s\n%a"
                        count (Printexc.to_string err) bt print_failure example))
               (Errored { backtrace = None })
     end : Test )

@@ -28,14 +28,14 @@ let display_diff diff out =
   let module Diff = Patience_diff_lib.Patience_diff in
   let module F = Omnomnom.Formatting in
   (* The eta-expansion here is important, otherwise the formatting codes are only emitted once. *)
-  let same x = Format.fprintf out "  %s@\n" x
-  and minus x = F.printf F.(DullColor Red) out "- %s@\n" x
-  and plus x = F.printf F.(DullColor Green) out "+ %s@\n" x in
+  let same x = Format.fprintf out " %s@\n" x
+  and minus x = F.printf F.(DullColor Red) out "-%s@\n" x
+  and plus x = F.printf F.(DullColor Green) out "+%s@\n" x in
   diff
   |> List.iter (fun (hunk : string Diff.Hunk.t) ->
          F.printf
            F.(DullColor Cyan)
-           out "@@@@@ -%i,%i +%i,%i @@@@@@m@\n" hunk.prev_start hunk.prev_size hunk.next_start
+           out "%@%@ -%i,%i +%i,%i %@%@@\n" hunk.prev_start hunk.prev_size hunk.next_start
            hunk.next_size;
          hunk.ranges
          |> List.iter (function

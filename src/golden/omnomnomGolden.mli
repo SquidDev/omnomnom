@@ -15,7 +15,7 @@ open Omnomnom.Tests
 
     Note, we also supply {e relative} file name - this should not be treated as a location on disk,
     but merely a useful name for error messages and the like. *)
-type process = name:string -> string -> string Lwt.t
+type process = name:string -> string -> string
 
 (** Create a golden test using using the name of the input file and the output "golden" file. *)
 val of_file : process -> directory:string -> input_name:string -> output_name:string -> test tree

@@ -167,14 +167,97 @@ let pp_indent out indent action =
   action ();
   Format.pp_close_box out ()
 
-let run { display; colour; base_dir; _ } =
+let print_results { display; base_dir; _ } out results =
+  let base_dir =
+    if Filename.is_relative base_dir then Filename.concat (Unix.getcwd ()) base_dir else base_dir
+  in
+  Format.pp_print_newline out ();
+  (* Now print the summary *)
+  let is_success = function
+    | Pass | Skipped -> true
+    | Failed _ | Errored _ -> false
+  in
+  let format_test name { outcome; message; _ } =
+    ( (if is_success outcome then 1 else 0),
+      1,
+      if is_success outcome && display <> Tests && Option.is_none message then
+        (* Skip tests which passed when in a quieter mode.. *)
+        None
+      else
+        (* Otherwise include the test name. *)
+        Some
+          (fun () ->
+            let style, icon =
+              match outcome with
+              | Pass -> F.(DullColor Green, "✓")
+              | Skipped -> F.(DullColor Yellow, "○")
+              | Failed _ | Errored _ -> F.(DullColor Red, "✘")
+            in
+            F.printf style out "%s" icon;
+            Format.fprintf out " %s" name;
+            ( match message with
+            | None -> ()
+            | Some message ->
+                Format.pp_force_newline out ();
+                pp_indent out 2 (fun () -> message out) );
+            match outcome with
+            | Pass | Skipped -> ()
+            | Failed e | Errored e -> (
+              match e with
+              | { backtrace = None } -> ()
+              | { backtrace = Some backtrace } ->
+                  Format.pp_force_newline out ();
+                  pp_indent out 2
+                  @@ fun () ->
+                  (* Print the message and backtrace. *)
+                  format_trace ~base_dir ~out backtrace;
+                  Format.pp_force_newline out ();
+                  Format.pp_print_text out (Printexc.raw_backtrace_to_string backtrace) )) )
+  in
+  let format_group name pass total children =
+    ( pass,
+      total,
+      if List.length children = 0 && display = Nothing then
+        (* Skip groups when they've no children and not showing groups. *)
+        None
+      else
+        (* Otherwise display the group name and extra info. *)
+        Some
+          (fun () ->
+            Format.fprintf out "%s " name;
+            F.printf F.(BrightColor Cyan) out "(%d out of %d passed)@\n" pass total;
+            pp_indent out 2
+            @@ fun () ->
+            List.iteri
+              (fun i f ->
+                if i > 0 then Format.pp_force_newline out ();
+                f ())
+              children) )
+  in
+  let rec print_tests = function
+    | TestCase (name, result) -> format_test name result
+    | TestGroup (name, children) ->
+        let pass, total, children =
+          List.fold_right
+            (fun child (pass, total, children) ->
+              let p, t, c = print_tests child in
+              ( pass + p,
+                total + t,
+                match c with
+                | None -> children
+                | Some x -> x :: children ))
+            children (0, 0, [])
+        in
+        format_group name pass total children
+  in
+  let _, _, fn = print_tests results in
+  match fn with
+  | Some fn -> fn (); Format.pp_force_newline out ()
+  | None -> ()
+
+let run ({ colour; _ } as options) =
   Some
-    (fun tests results ->
-      let open Lwt in
-      let base_dir =
-        if Filename.is_relative base_dir then Filename.concat (Unix.getcwd ()) base_dir
-        else base_dir
-      in
+    (fun tests ->
       (* Set up our printer. *)
       let out = Format.std_formatter in
       if colour then setup_color_printer out;
@@ -190,89 +273,5 @@ let run { display; colour; base_dir; _ } =
         | TestGroup (_, tests) -> List.iter print_progress tests
       in
       print_progress tests;
-      (* Wait for all tests to finish, yielding to ensure they really have. *)
-      let%lwt tests = results in
-      Format.print_newline ();
-      (* Now print the summary *)
-      let is_success = function
-        | Pass | Skipped -> true
-        | Failed _ | Errored _ -> false
-      in
-      let format_test name { outcome; message; _ } =
-        ( (if is_success outcome then 1 else 0),
-          1,
-          if is_success outcome && display <> Tests && Option.is_none message then
-            (* Skip tests which passed when in a quieter mode.. *)
-            None
-          else
-            (* Otherwise include the test name. *)
-            Some
-              (fun () ->
-                let style, icon =
-                  match outcome with
-                  | Pass -> F.(DullColor Green, "✓")
-                  | Skipped -> F.(DullColor Yellow, "○")
-                  | Failed _ | Errored _ -> F.(DullColor Red, "✘")
-                in
-                F.printf style out "%s" icon;
-                Format.fprintf out " %s" name;
-                ( match message with
-                | None -> ()
-                | Some message ->
-                    Format.pp_force_newline out ();
-                    pp_indent out 2 (fun () -> message out) );
-                match outcome with
-                | Pass | Skipped -> ()
-                | Failed e | Errored e -> (
-                  match e with
-                  | { backtrace = None } -> ()
-                  | { backtrace = Some backtrace } ->
-                      Format.pp_force_newline out ();
-                      pp_indent out 2
-                      @@ fun () ->
-                      (* Print the message and backtrace. *)
-                      format_trace ~base_dir ~out backtrace;
-                      Format.pp_force_newline out ();
-                      Format.pp_print_text out (Printexc.raw_backtrace_to_string backtrace) )) )
-      in
-      let format_group name pass total children =
-        ( pass,
-          total,
-          if List.length children = 0 && display = Nothing then
-            (* Skip groups when they've no children and not showing groups. *)
-            None
-          else
-            (* Otherwise display the group name and extra info. *)
-            Some
-              (fun () ->
-                Format.fprintf out "%s " name;
-                F.printf F.(BrightColor Cyan) out "(%d out of %d passed)@\n" pass total;
-                pp_indent out 2
-                @@ fun () ->
-                List.iteri
-                  (fun i f ->
-                    if i > 0 then Format.pp_force_newline out ();
-                    f ())
-                  children) )
-      in
-      let rec print_tests = function
-        | TestCase (name, result) -> format_test name result
-        | TestGroup (name, children) ->
-            let pass, total, children =
-              List.fold_right
-                (fun child (pass, total, children) ->
-                  let p, t, c = print_tests child in
-                  ( pass + p,
-                    total + t,
-                    match c with
-                    | None -> children
-                    | Some x -> x :: children ))
-                children (0, 0, [])
-            in
-            format_group name pass total children
-      in
-      let _, _, fn = print_tests tests in
-      ( match fn with
-      | Some fn -> fn (); Format.pp_force_newline out ()
-      | None -> () );
-      return true)
+      (* When we receive all results, print them *)
+      print_results options out)

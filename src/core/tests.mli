@@ -67,7 +67,7 @@ module type Test = sig
   include Core.Configurable
 
   (** Run this test with the given options. *)
-  val run : options -> result Lwt.t
+  val run : options -> result
 end
 
 (** An alias over {!Test}, so you don't have to continuously use the module keyword. *)
@@ -78,12 +78,6 @@ val test_case : string -> test -> test tree
 
 (** Create a new test group from several child test trees. *)
 val group : string -> test tree list -> test tree
-
-(** Create a simple test case from an asynchronous function.
-
-    This test accepts no options (and so cannot be configured) and returns the result of executing
-    it. *)
-val test_async : string -> (unit -> result Lwt.t) -> test tree
 
 (** Create a simple test case from a function.
 

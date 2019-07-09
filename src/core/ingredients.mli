@@ -7,20 +7,15 @@ module type Reporter = sig
   (** Takes a set of options and returns a subscriber function if this reporter is currently
       active.
 
-      The subscriber function accepts the test tree in several forms:
+      The signature of the subscriber function is a little bit misleading. It is first applied with
+      the tree of current test progress, represented as a tree of result sinks. This can be used to
+      monitor (and thus report on) the current state of test execution, or can happily be
+      discarded.
 
-      - A partial tree (a tree of result event sinks), useful for monitoring the current state of
-        test execution.
-
-      {ul
-       {- A complete tree (a promise of a result tree), useful for getting the final state of
-          executing. This can be derived from the partial tree, and so is offered as a convenience.}}
-
-      This function should return when all tests have completed execution, with a boolean
-      determining whether it considers all tests having passed. *)
+      When all tests have finished executing, we apply the returned callback with the tree of all
+      test results. This may be used to display a final report on the tests. *)
   val run :
-    options ->
-    (Tests.status Signal.sink Tests.tree -> Tests.result Tests.tree Lwt.t -> bool Lwt.t) option
+    options -> (Tests.status Signal.sink Tests.tree -> Tests.result Tests.tree -> unit) option
 end
 
 (** A convenient type alias for first-class {!Reporter} instances. *)

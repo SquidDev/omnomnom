@@ -17,8 +17,6 @@
     (ocaml (>= 4.08))
     (dune (and :build (>= 1.10)))
     (odoc :build)
-    (lwt  (>= 4.2.1))
-    (lwt_ppx (>= 1.2.2))
     (cmdliner (>= 1.0.4)))
   (depopts
     junit

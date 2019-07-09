@@ -1,9 +1,7 @@
 (library
  (name omnomnom)
  (public_name omnomnom)
- (libraries cmdliner lwt lwt.unix mtime mtime.clock.os)
- (preprocess
-  (pps lwt_ppx)))
+ (libraries cmdliner mtime mtime.clock.os unix))
 
 (documentation
  (package omnomnom))

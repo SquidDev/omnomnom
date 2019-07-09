@@ -7,8 +7,6 @@ let () =
   @@ group "omnomnom"
        [ group "Can perform golden tests"
            [ (let work ~name contents =
-                Lwt.return
-                @@
                 if name = "fail.txt" then
                   contents ^ "\nOh no " ^ Printf.sprintf "%08x" (Random.bits ())
                 else contents ^ "\nOh yes!"

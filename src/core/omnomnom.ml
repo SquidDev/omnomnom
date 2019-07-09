@@ -42,7 +42,6 @@ end
 (** Run a series of tests, with the provided reporter. *)
 let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
   let module Reporter = (val reporter) in
-  let open Lwt in
   let rec build_tree tasks = function
     | TestCase (name, test) ->
         let module Test = (val test : Test) in
@@ -61,24 +60,30 @@ let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
         in
         (TestGroup (name, List.rev children), tasks)
   in
+  let is_success = function
+    | Pass | Skipped -> true
+    | Failed _ | Errored _ -> false
+  in
   let rec finish_tree = function
     | TestCase (name, sink) -> (
       match Signal.get sink with
-      | Finished r -> TestCase (name, r)
+      | Finished r -> (is_success r.outcome, TestCase (name, r))
       | _ -> failwith (Printf.sprintf "Test %S hasn't finished" name) )
-    | TestGroup (name, children) -> TestGroup (name, List.map finish_tree children)
+    | TestGroup (name, children) ->
+        let ok, children =
+          List.fold_left
+            (fun (ok, children) child ->
+              let ok', child = finish_tree child in
+              (ok && ok', child :: children))
+            (true, []) children
+        in
+        (ok, TestGroup (name, List.rev children))
   in
   let run tests tasks options =
     match Reporter.run options with
     | None -> `Error (true, "No test reporter for these options.")
     | Some f ->
-        let result, resolve = Lwt.task () in
-        let future = f tests result in
-        let pending = ref (List.length tasks) in
-        let finish () =
-          pending := !pending - 1;
-          if !pending = 0 then Lwt.wakeup_later resolve (finish_tree tests)
-        in
+        let callback = f tests in
         tasks
         |> List.iter (fun (source, action) ->
                Signal.update source Running;
@@ -87,12 +92,12 @@ let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
                  let duration = Mtime_clock.count counter in
                  let result = { result with time = duration } in
                  Signal.update source (Finished result);
-                 Signal.plug source;
-                 finish ()
+                 Signal.plug source
                in
-               try on_any (action ()) finish (fun e -> finish (result_of_exn e))
-               with e -> finish (result_of_exn e));
-        if Lwt_main.run future then `Ok () else `Error (false, "")
+               try finish (action ()) with e -> finish (result_of_exn e));
+        let ok, children = finish_tree tests in
+        callback children;
+        if ok then `Ok () else `Error (false, "")
   in
   (* Small bits of setup. *)
   Printexc.record_backtrace true;
@@ -104,5 +109,4 @@ let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
     info "omnomnom" ~doc ~exits:default_exits
   in
   let tests, tasks = build_tree (const []) tests in
-  (* let results = results >>= fun r -> Lwt.pause () >|= fun () -> r in *)
   exit @@ eval (const (run tests) $ tasks $ Reporter.options, info)

@@ -37,25 +37,24 @@ let of_qcheck (Q.Test cell) =
           if shrink_steps > 0 then Format.fprintf f " (after %d shrink steps)" shrink_steps;
           List.iter (Format.fprintf f "%s\n") msg_l
         in
-        Lwt.return
-          ( match state with
-          | Success ->
-              result ~message:(Some (fun f -> Format.fprintf f "%d tests completed." count)) Pass
-          | Failed examples ->
-              result
-                ~message:
-                  (Some
-                     (fun f ->
-                       Format.fprintf f "@[Failed after %d tests on ≥ %d cases:@ @[<v>%a@]@]"
-                         count (List.length examples) (pp_list print_failure) examples))
-                (Failed { backtrace = None })
-          | Error (example, err, bt) ->
-              result
-                ~message:
-                  (Some
-                     (fun f ->
-                       Format.fprintf f
-                         "Errored after %d tests: %s\n%s\n%a"
-                         count (Printexc.to_string err) bt print_failure example))
-                (Errored { backtrace = None }) )
+        match state with
+        | Success ->
+            result ~message:(Some (fun f -> Format.fprintf f "%d tests completed." count)) Pass
+        | Failed examples ->
+            result
+              ~message:
+                (Some
+                   (fun f ->
+                     Format.fprintf f "@[Failed after %d tests on ≥ %d cases:@ @[<v>%a@]@]" count
+                       (List.length examples) (pp_list print_failure) examples))
+              (Failed { backtrace = None })
+        | Error (example, err, bt) ->
+            result
+              ~message:
+                (Some
+                   (fun f ->
+                     Format.fprintf f
+                       "Errored after %d tests: %s\n%s\n%a"
+                       count (Printexc.to_string err) bt print_failure example))
+              (Errored { backtrace = None })
     end : Test )

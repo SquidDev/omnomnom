@@ -1,6 +1,6 @@
 open Omnomnom.Tests
 
-type process = name:string -> string -> string Lwt.t
+type process = name:string -> string -> string
 
 type opts = { regenerate : bool } [@@unbox]
 
@@ -13,16 +13,16 @@ let options =
   in
   Term.(const (fun regenerate -> { regenerate }) $ regenerate)
 
-let read_all input =
+let read_all channel =
   let buffer = Buffer.create 1024 in
   let bytes = Bytes.create 8192 in
   let rec read () =
-    let%lwt n = Lwt_io.read_into input bytes 0 8192 in
+    let n = input channel bytes 0 8192 in
     Buffer.add_subbytes buffer bytes 0 n;
-    if n > 0 then read () else Lwt.return ()
+    if n > 0 then read ()
   in
-  let%lwt () = read () in
-  Lwt.return (Buffer.contents buffer)
+  let () = read () in
+  close_in channel; Buffer.contents buffer
 
 let display_diff diff out =
   let module Diff = Patience_diff_lib.Patience_diff in
@@ -49,15 +49,13 @@ let run ~regenerate ~action ~directory ~input_name ~output_name =
   (* Read the input and output *)
   let input_path = Filename.concat directory input_name in
   let output_path = Filename.concat directory output_name in
-  let input_contents = Lwt_io.with_file ~mode:Lwt_io.input input_path read_all in
+  let input_contents = open_in input_path |> read_all in
   let output_expected =
-    try%lwt Lwt_io.with_file ~mode:Lwt_io.input output_path read_all
-    with Unix.Unix_error (Unix.ENOENT, _, _) -> Lwt.return ""
+    try open_in output_path |> read_all with Unix.Unix_error (Unix.ENOENT, _, _) -> ""
   in
   (* And resolve the actual output + expected output. *)
-  let%lwt output_actual = Lwt.bind input_contents (action ~name:input_name) in
-  let%lwt output_expected = output_expected in
-  if output_actual = output_expected then Lwt.return (result Pass)
+  let output_actual = action ~name:input_name input_contents in
+  if output_actual = output_expected then result Pass
   else
     (* Generate a diff and pretty-print it. This is horrible, and really should be using some
        pretty-printing library. *)
@@ -70,12 +68,13 @@ let run ~regenerate ~action ~directory ~input_name ~output_name =
         ~next:(String.split_on_char '\n' output_actual |> Array.of_list)
     in
     (* Regenerate the file if needed .*)
-    let%lwt () =
-      if regenerate then
-        Lwt_io.with_file ~mode:Lwt_io.output output_path (fun ch -> Lwt_io.write ch output_actual)
-      else Lwt.return_unit
+    let () =
+      if regenerate then (
+        let channel = open_out output_path in
+        output_string channel output_actual;
+        close_out channel )
     in
-    Lwt.return (result ~message:(Some (display_diff diff)) (Failed { backtrace = None }))
+    result ~message:(Some (display_diff diff)) (Failed { backtrace = None })
 
 let of_file action ~directory ~input_name ~output_name =
   test_case input_name

@@ -63,16 +63,14 @@ and get_results name xs =
     xs ([], [])
 
 let run_with path _ results =
-  let%lwt tests = results in
   let suites =
-    match get_result "" tests with
+    match get_result "" results with
     | [], suites -> suites
     | cases, suites ->
         let open Junit.Testsuite in
         (make ~name:"Root" () |> add_testcases cases) :: suites
   in
-  Junit.to_file (Junit.make suites) path;
-  Lwt.return true
+  Junit.to_file (Junit.make suites) path
 
 module Reporter = struct
   type options = { path : string option }

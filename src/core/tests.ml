@@ -34,7 +34,7 @@ type 'a tree =
 module type Test = sig
   include Configurable
 
-  val run : options -> result Lwt.t
+  val run : options -> result
 end
 
 type test = (module Test)
@@ -45,7 +45,7 @@ let group name tests = TestGroup (name, tests)
 
 let basic_options = Cmdliner.Term.const ()
 
-let test_async name fn =
+let test name fn =
   test_case name
     ( module struct
       type options = unit
@@ -55,11 +55,6 @@ let test_async name fn =
       let run = fn
     end : Test )
 
-let test name fn = test_async name (fun () -> Lwt.return (fn ()))
+let simple_test name fn = test name (fun () -> fn (); result Pass)
 
-let simple_test name fn =
-  test_async name (fun () ->
-      fn ();
-      Lwt.return (result Pass))
-
-let pending name _ = test_async name (fun () -> Lwt.return (result Skipped))
+let pending name _ = test name (fun () -> result Skipped)

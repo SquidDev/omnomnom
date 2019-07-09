@@ -1,6 +1,6 @@
 (test
  (name test)
- (libraries lwt omnomnom omnomnom.golden omnomnom.junit omnomnom.qcheck
+ (libraries omnomnom omnomnom.golden omnomnom.junit omnomnom.qcheck
    qcheck-core)
  (deps
   (source_tree data))

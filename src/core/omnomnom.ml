@@ -85,7 +85,7 @@ let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
     | None -> `Error (true, "No test reporter for these options.")
     | Some f ->
         let callback = f tests in
-        tasks
+        tasks |> List.rev
         |> List.iter (fun (source, action) ->
                Signal.update source Running;
                let counter = Mtime_clock.counter () in

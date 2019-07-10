@@ -1,7 +1,7 @@
 (test
  (name test)
- (libraries omnomnom omnomnom.golden omnomnom.junit omnomnom.qcheck
-   qcheck-core)
+ (libraries omnomnom omnomnom.alcotest omnomnom.golden omnomnom.junit
+   omnomnom.qcheck alcotest qcheck-core)
  (deps
   (source_tree data))
  (action

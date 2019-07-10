@@ -66,7 +66,7 @@ consider critical to a test framework.
  - [ ] Test Anything Protocol reporter.
 
 ### Test integration
- - [ ] Alcotest support
+ - [x] Alcotest support
  - [ ] OUnit support
  - [x] QCheck support
 

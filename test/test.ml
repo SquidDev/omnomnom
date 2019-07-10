@@ -1,4 +1,7 @@
 open Omnomnom.Tests
+open OmnomnomAlcotest
+
+(* The tests *)
 
 let () =
   Omnomnom.run
@@ -35,5 +38,25 @@ let () =
                 QCheck.Test.make ~count:1000 ~name:"my_buggy_test"
                   QCheck.(list small_nat)
                   (fun l -> List.rev l = l)
-              ])
+              ]);
+         (let module To_test = struct
+            let capit letter = Char.uppercase_ascii letter
+
+            let plus int_list = List.fold_left (fun a b -> a + b) 0 int_list
+          end in
+         let capit () =
+           Alcotest.(check char) "same chars" 'A' (To_test.capit 'a');
+           ()
+         in
+         let plus () =
+           Alcotest.(check int) "same ints" 8 (To_test.plus [ 1; 1; 2; 3 ]);
+           ()
+         in
+         let fails () = Alcotest.fail "Oh no" in
+         of_alcotest
+           ( "Alcotests",
+             [ ("Capitalize", `Quick, capit);
+               ("Add entries", `Slow, plus);
+               ("Fails", `Quick, fails)
+             ] ))
        ]

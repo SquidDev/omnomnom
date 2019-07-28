@@ -3,6 +3,7 @@
 (implicit_transitive_deps false)
 (generate_opam_files true)
 
+(name omnomnom)
 (version 0.1.0)
 (authors "Jonathan Coates")
 (license MIT)
@@ -19,6 +20,7 @@
     (odoc :build)
     (cmdliner (>= 1.0.4)))
   (depopts
-    junit
-    patience_diff
-    qcheck-core))
+    (junit (>= 2.0.0))
+    (patience_diff (>= v.0.12.0))
+    (alcotest (>= 0.8.5))
+    (qcheck-core (>= 0.10))))

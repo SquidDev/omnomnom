@@ -14,8 +14,7 @@ let () =
                   contents ^ "\nOh no " ^ Printf.sprintf "%08x" (Random.bits ())
                 else contents ^ "\nOh yes!"
               in
-              OmnomnomGolden.of_directory work ?rename:None ~directory:"data/golden"
-                ~extension:".txt")
+              OmnomnomGolden.of_directory work ~directory:"data/golden" ~extension:".txt" ())
            ];
          group "Some arbitrary tests"
            [ simple_test "Will assert a value" (fun () ->

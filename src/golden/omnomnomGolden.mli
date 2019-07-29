@@ -11,6 +11,11 @@
 
 open Omnomnom.Tests
 
+(** Create a golden test file which has no input file, merely producing an output.
+
+    The function will simply be applied with the same value as [output_name] *)
+val of_output : (name:string -> string) -> directory:string -> output_name:string -> test tree
+
 (** The function to apply to the input file's contents. Should simply return the computed result.
 
     Note, we also supply {e relative} file name - this should not be treated as a location on disk,
@@ -30,7 +35,12 @@ val of_file : process -> directory:string -> input_name:string -> output_name:st
     inputs.
 
     {[
-of_directory ~process:do_something ~directory:"test-data" ~extension:"json"
+of_directory ~process:do_something ~directory:"test-data" ~extension:"json" ()
     ]} *)
 val of_directory :
-  process -> ?rename:(string -> string) -> directory:string -> extension:string -> test tree
+  process ->
+  ?rename:(string -> string) ->
+  directory:string ->
+  extension:string ->
+  unit ->
+  test tree

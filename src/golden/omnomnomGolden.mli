@@ -39,6 +39,7 @@ of_directory ~process:do_something ~directory:"test-data" ~extension:"json" ()
     ]} *)
 val of_directory :
   process ->
+  ?group:string ->
   ?rename:(string -> string) ->
   directory:string ->
   extension:string ->

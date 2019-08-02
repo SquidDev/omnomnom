@@ -96,7 +96,7 @@ let of_file action ~directory ~input_name ~output_name =
 
 let out x = x ^ ".out"
 
-let of_directory action ?(rename = out) ~directory ~extension () =
+let of_directory action ?group:group_name ?(rename = out) ~directory ~extension () =
   try
     let names = ref [] in
     let handle = Unix.opendir directory in
@@ -111,7 +111,7 @@ let of_directory action ?(rename = out) ~directory ~extension () =
     |> List.map (fun child ->
            of_file action ~directory ~input_name:child
              ~output_name:(Filename.remove_extension child |> rename))
-    |> group directory
+    |> group (Option.value group_name ~default:directory)
   with e ->
     let res = result_of_exn e in
     test directory (fun () -> res)

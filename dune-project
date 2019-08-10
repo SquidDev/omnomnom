@@ -18,7 +18,8 @@
     (ocaml (>= 4.08))
     (dune (and :build (>= 1.10)))
     (odoc :build)
-    (cmdliner (>= 1.0.4)))
+    (cmdliner (>= 1.0.4))
+    (mtime (>= 1.2.0)_))
   (depopts
     (junit (>= 2.0.0))
     (patience_diff (>= v.0.12.0))

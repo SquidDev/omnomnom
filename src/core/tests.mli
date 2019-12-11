@@ -27,12 +27,12 @@ type result =
         (** A message about this test, detailing information about the test execution or its reason
             for failure.
 
-            As this is a function (rather than a string), and accepts a {!Format.formatter}, one
-            can safely use colours and other formatting features without worrying how they'll be
+            As this is a function (rather than a string), and accepts a {!Format.formatter}, one can
+            safely use colours and other formatting features without worrying how they'll be
             presented to the user. *)
     time : Mtime.span
-        (** The time taken to execute this test. This can be left at {!Mtime.Span.zero} and the
-            test runner will fill it in. *)
+        (** The time taken to execute this test. This can be left at {!Mtime.Span.zero} and the test
+            runner will fill it in. *)
   }
 
 (** The current state of an executing test. This is provided to various ingredients in order track

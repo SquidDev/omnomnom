@@ -45,17 +45,16 @@ let of_qcheck (Q.Test cell) =
               ~message:
                 (Some
                    (fun f ->
-                     Format.fprintf f "@[Failed after %d trials on ≥ %d cases:@ @[<v>%a@]@]"
-                       count (List.length instances) (pp_list print_failure) instances))
+                     Format.fprintf f "@[Failed after %d trials on ≥ %d cases:@ @[<v>%a@]@]" count
+                       (List.length instances) (pp_list print_failure) instances))
               (Failed { backtrace = None })
         | Error { instance; exn; backtrace } ->
             result
               ~message:
                 (Some
                    (fun f ->
-                     Format.fprintf f
-                       "Errored after %d trials : %s\n%s\n%a"
-                       count (Printexc.to_string exn) backtrace print_failure instance))
+                     Format.fprintf f "Errored after %d trials : %s\n%s\n%a" count
+                       (Printexc.to_string exn) backtrace print_failure instance))
               (Errored { backtrace = None })
         | Failed_other { msg } ->
             result

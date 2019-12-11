@@ -207,8 +207,7 @@ let print_results { display; base_dir; _ } out results =
               | { backtrace = None } -> ()
               | { backtrace = Some backtrace } ->
                   Format.pp_force_newline out ();
-                  pp_indent out 2
-                  @@ fun () ->
+                  pp_indent out 2 @@ fun () ->
                   (* Print the message and backtrace. *)
                   format_trace ~base_dir ~out backtrace;
                   Format.pp_force_newline out ();
@@ -226,8 +225,7 @@ let print_results { display; base_dir; _ } out results =
           (fun () ->
             Format.fprintf out "%s " name;
             F.printf F.(BrightColor Cyan) out "(%d out of %d passed)@\n" pass total;
-            pp_indent out 2
-            @@ fun () ->
+            pp_indent out 2 @@ fun () ->
             List.iteri
               (fun i f ->
                 if i > 0 then Format.pp_force_newline out ();

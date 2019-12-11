@@ -5,10 +5,9 @@
     {2 Usage}
 
     {[
-  Omnomnom.run
-    ~reporter:
-      Omnomnom.Ingredients.(compose_reporters console_reporter OmnomnomJUnit.reporter)
-  @@ group "omnomnom"
+      Omnomnom.run
+        ~reporter:Omnomnom.Ingredients.(compose_reporters console_reporter OmnomnomJUnit.reporter)
+      @@ group "omnomnom"
     ]} *)
 
 include Omnomnom.Ingredients.Reporter

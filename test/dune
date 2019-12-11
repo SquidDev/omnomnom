@@ -1,10 +1,14 @@
-(test
+(executable
  (name test)
  (libraries omnomnom omnomnom.alcotest omnomnom.golden omnomnom.junit
-   omnomnom.qcheck alcotest qcheck-core)
+   omnomnom.qcheck alcotest qcheck-core))
+
+(rule
+ (alias example)
  (deps
+  test.exe
   (source_tree data))
  (action
-  (run %{test} --base-dir "../" --display --junit)))
+  (run ./test.exe --base-dir "../" --display --junit)))
 
 (data_only_dirs data)

@@ -1,5 +1,4 @@
-(lang dune 1.10)
-(using fmt 1.1)
+(lang dune 2.0)
 (implicit_transitive_deps false)
 (generate_opam_files true)
 
@@ -16,12 +15,16 @@
   (description "A small test framework, inspired by Tasty.")
   (depends
     (ocaml (>= 4.08))
-    (dune (and :build (>= 1.10)))
-    (odoc :build)
+    (dune (>= 2.0))
+    (odoc :with-doc)
     (cmdliner (>= 1.0.4))
-    (mtime (>= 1.2.0)))
+    (mtime (>= 1.2.0))
+    (junit (and :with-test (>= 2.0.0)))
+    (patience_diff (and :with-test (>= v0.12.0)))
+    (alcotest (and :with-test (>= 0.8.5)))
+    (qcheck-core (and :with-test (>= 0.10))))
   (depopts
     (junit (>= 2.0.0))
-    (patience_diff (>= v.0.12.0))
+    (patience_diff (>= v0.12.0))
     (alcotest (>= 0.8.5))
     (qcheck-core (>= 0.10))))

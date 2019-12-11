@@ -1,5 +1,5 @@
-(** Golden tests are very similar to any other unit test - you run a function and compare the
-    output against the expected output.
+(** Golden tests are very similar to any other unit test - you run a function and compare the output
+    against the expected output.
 
     However, under golden tests, the input and expected output are stored on the file system. This
     makes them more convenient when you're dealing with non-trivial inputs or outputs. Also, by
@@ -34,9 +34,7 @@ val of_file : process -> directory:string -> input_name:string -> output_name:st
     For instance, the following will use all [.json] files within the [test-data] directory as
     inputs.
 
-    {[
-of_directory ~process:do_something ~directory:"test-data" ~extension:"json" ()
-    ]} *)
+    {[ of_directory ~process:do_something ~directory:"test-data" ~extension:"json" () ]} *)
 val of_directory :
   process ->
   ?group:string ->

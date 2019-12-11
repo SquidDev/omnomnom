@@ -25,8 +25,7 @@ val on : 'a sink -> ('a -> 'a -> unit) -> unit
 (** "Plug" this source, preventing any further events from being fired, and removing all event
     listeners.
 
-    Attempting to subscribe to a plugged sink, or fire an event on a plugged source will do
-    nothing. *)
+    Attempting to subscribe to a plugged sink, or fire an event on a plugged source will do nothing. *)
 val plug : 'a source -> unit
 
 (** Update the value of this source, notifying any subscribed listeners. *)

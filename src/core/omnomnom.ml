@@ -1,18 +1,21 @@
 (** An OCaml test framework inspired by Tasty.
 
-    {2 Usage} 
-    {[
-open Omnomnom.Tests
+    {2 Usage}
 
-let () = Omnomnom.run @@ group "omnomnom"
-  [ simple_test "Will assert a value" (fun () ->
-        assert (List.hd [ 0 ] = 0);
-        ());
-    simple_test "Will fail" (fun () ->
-        let _ = List.hd [] in
-        ());
-    pending "A test which needs to be written." ()
-  ]
+    {[
+      open Omnomnom.Tests
+
+      let () =
+        Omnomnom.run
+        @@ group "omnomnom"
+             [ simple_test "Will assert a value" (fun () ->
+                   assert (List.hd [ 0 ] = 0);
+                   ());
+               simple_test "Will fail" (fun () ->
+                   let _ = List.hd [] in
+                   ());
+               pending "A test which needs to be written." ()
+             ]
     ]} *)
 
 [@@@ocamlformat "wrap-comments=false"]

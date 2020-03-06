@@ -19,12 +19,12 @@ type status =
   | Running
   | Finished of result
 
-let result ?(message = None) outcome = { message; outcome; time = Mtime.Span.zero }
+let result ?message outcome = { message; outcome; time = Mtime.Span.zero }
 
 let result_of_exn e =
   let message = Printexc.to_string e in
   result
-    ~message:(Some (fun x -> Format.pp_print_text x message))
+    ~message:(fun x -> Format.pp_print_text x message)
     (Errored { backtrace = Some (Printexc.get_raw_backtrace ()) })
 
 type 'a tree =

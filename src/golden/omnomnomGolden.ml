@@ -68,7 +68,7 @@ let compare ~regenerate ~directory ~output_name ~output_actual =
         output_string channel output_actual;
         close_out channel )
     in
-    result ~message:(Some (display_diff diff)) (Failed { backtrace = None })
+    result ~message:(display_diff diff) (Failed { backtrace = None })
 
 let run ~regenerate ~action ~directory ~input_name ~output_name =
   let input_contents = Filename.concat directory input_name |> open_in |> read_all in

@@ -38,26 +38,19 @@ let of_qcheck (Q.Test cell) =
           List.iter (Format.fprintf f "%s\n") msg_l
         in
         match state with
-        | Success ->
-            result ~message:(Some (fun f -> Format.fprintf f "%d trials completed." count)) Pass
+        | Success -> result ~message:(fun f -> Format.fprintf f "%d trials completed." count) Pass
         | Failed { instances } ->
             result
-              ~message:
-                (Some
-                   (fun f ->
-                     Format.fprintf f "@[Failed after %d trials on ≥ %d cases:@ @[<v>%a@]@]" count
-                       (List.length instances) (pp_list print_failure) instances))
+              ~message:(fun f ->
+                Format.fprintf f "@[Failed after %d trials on ≥ %d cases:@ @[<v>%a@]@]" count
+                  (List.length instances) (pp_list print_failure) instances)
               (Failed { backtrace = None })
         | Error { instance; exn; backtrace } ->
             result
-              ~message:
-                (Some
-                   (fun f ->
-                     Format.fprintf f "Errored after %d trials : %s\n%s\n%a" count
-                       (Printexc.to_string exn) backtrace print_failure instance))
+              ~message:(fun f ->
+                Format.fprintf f "Errored after %d trials : %s\n%s\n%a" count
+                  (Printexc.to_string exn) backtrace print_failure instance)
               (Errored { backtrace = None })
         | Failed_other { msg } ->
-            result
-              ~message:(Some (fun f -> Format.fprintf f "%s" msg))
-              (Errored { backtrace = None })
+            result ~message:(fun f -> Format.fprintf f "%s" msg) (Errored { backtrace = None })
     end : Test )

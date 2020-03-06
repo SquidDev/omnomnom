@@ -51,7 +51,7 @@ let () =
            Alcotest.(check int) "same ints" 8 (To_test.plus [ 1; 1; 2; 3 ]);
            ()
          in
-         let fails () = Alcotest.fail "Oh no" in
+         let fails () = Alcotest.fail "Oh no" |> ignore in
          of_alcotest
            ( "Alcotests",
              [ ("Capitalize", `Quick, capit);

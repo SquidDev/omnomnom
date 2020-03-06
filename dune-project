@@ -21,10 +21,10 @@
     (mtime (>= 1.2.0))
     (junit (and :with-test (>= 2.0.0)))
     (patience_diff (and :with-test (>= v0.12.0)))
-    (alcotest (and :with-test (>= 0.8.5)))
+    (alcotest (and :with-test (>= 1.0.0)))
     (qcheck-core (and :with-test (>= 0.10))))
   (depopts
     (junit (>= 2.0.0))
     (patience_diff (>= v0.12.0))
-    (alcotest (>= 0.8.5))
+    (alcotest (>= 1.0.0))
     (qcheck-core (>= 0.10))))

@@ -43,7 +43,7 @@ type status =
   | Finished of result  (** This test has finished, and produced a test {!result}. *)
 
 (** Construct a result from an outcome. *)
-val result : ?message:(Format.formatter -> unit) option -> outcome -> result
+val result : ?message:(Format.formatter -> unit) -> outcome -> result
 
 (** Create a new {!Errored} {!result} from an exception. *)
 val result_of_exn : exn -> result

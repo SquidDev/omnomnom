@@ -9,20 +9,28 @@ let read_all channel =
   let () = read () in
   close_in channel; Buffer.contents buffer
 
+let flush () =
+  Format.pp_print_flush Format.std_formatter ();
+  Format.pp_print_flush Format.err_formatter ();
+  flush stdout;
+  flush stderr
+
 let with_redirect file fn =
   let descr_prev_stdout = Unix.dup Unix.stdout in
   let descr_prev_stderr = Unix.dup Unix.stderr in
   (* Redirect stdout/stderr to our temporary file. *)
-  flush stdout;
-  flush stderr;
+  flush ();
   let descr_file = Unix.(openfile file [ O_WRONLY; O_TRUNC; O_CREAT ] 0o600) in
   Unix.dup2 descr_file Unix.stdout;
   Unix.dup2 descr_file Unix.stderr;
   Unix.close descr_file;
-  let r = try Ok (fn ()) with e -> Error (e, Printexc.get_raw_backtrace ()) in
+  let r =
+    match fn () with
+    | x -> Ok x
+    | exception e -> Error (e, Printexc.get_raw_backtrace ())
+  in
   (* And redirect back to the original state. *)
-  flush stdout;
-  flush stderr;
+  flush ();
   Unix.dup2 descr_prev_stdout Unix.stdout;
   Unix.dup2 descr_prev_stderr Unix.stderr;
   (* Close our original handles. *)

@@ -2,4 +2,4 @@
  (name omnomnomAlcotest)
  (public_name omnomnom.alcotest)
  (optional)
- (libraries alcotest cmdliner lwt omnomnom))
+ (libraries alcotest cmdliner omnomnom))

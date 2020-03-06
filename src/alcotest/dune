@@ -3,5 +3,3 @@
  (public_name omnomnom.alcotest)
  (optional)
  (libraries alcotest cmdliner lwt omnomnom))
-
-(documentation)

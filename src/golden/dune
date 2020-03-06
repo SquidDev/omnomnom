@@ -1,7 +1,4 @@
 (library
  (name omnomnomGolden)
  (public_name omnomnom.golden)
- (optional)
- (libraries cmdliner omnomnom patience_diff unix))
-
-(documentation)
+ (libraries cmdliner omnomnom))

@@ -15,14 +15,12 @@ depends: [
   "cmdliner" {>= "1.0.4"}
   "mtime" {>= "1.2.0"}
   "junit" {with-test & >= "2.0.0"}
-  "patience_diff" {with-test & >= "v0.12.0"}
-  "alcotest" {with-test & >= "0.8.5"}
+  "alcotest" {with-test & >= "1.0.0"}
   "qcheck-core" {with-test & >= "0.10"}
 ]
 depopts: [
   "junit" {>= "2.0.0"}
-  "patience_diff" {>= "v0.12.0"}
-  "alcotest" {>= "0.8.5"}
+  "alcotest" {>= "1.0.0"}
   "qcheck-core" {>= "0.10"}
 ]
 build: [

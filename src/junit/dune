@@ -3,5 +3,3 @@
  (public_name omnomnom.junit)
  (optional)
  (libraries cmdliner junit mtime omnomnom))
-
-(documentation)

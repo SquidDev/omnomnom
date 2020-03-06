@@ -3,5 +3,3 @@
  (public_name omnomnom.qcheck)
  (optional)
  (libraries cmdliner omnomnom qcheck-core))
-
-(documentation)

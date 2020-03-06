@@ -36,7 +36,7 @@ let rec diff olds news =
   match (Slice.length olds, Slice.length news) with
   | 0, 0 -> Seq []
   | 0, _ -> Add news
-  | _, 0 -> Remove news
+  | _, 0 -> Remove olds
   | _, _ ->
       (* Build up a map of all lines contents to their positions. *)
       let old_index_map = Hashtbl.create (Slice.length olds / 2) in
@@ -54,7 +54,8 @@ let rec diff olds news =
                     this_overlap.(old_index) <- this;
                     if this > !sub_length then (
                       sub_length := this;
-                      sub_range := (old_index - this + 1, new_index - this + 1) )));
+                      sub_range := (old_index - this + 1, new_index - this + 1) ));
+             Array.blit this_overlap 0 overlap 0 (Array.length this_overlap));
 
       if !sub_length = 0 then Seq [ Remove olds; Add news ]
       else
@@ -81,3 +82,11 @@ let fold ~add ~remove ~keep diff =
     | Seq xs -> List.iter go xs
   in
   go diff
+
+let pp_diff out diff =
+  let module F = Omnomnom.Formatting in
+  (* The eta-expansion here is important, otherwise the formatting codes are only emitted once. *)
+  let keep = Slice.iter (fun x -> Format.fprintf out " %s@\n" x)
+  and remove = Slice.iter (fun x -> F.printf F.(DullColor Red) out "-%s@\n" x)
+  and add = Slice.iter (fun x -> F.printf F.(DullColor Green) out "+%s@\n" x) in
+  fold ~keep ~add ~remove diff

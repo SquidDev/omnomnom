@@ -24,14 +24,6 @@ let read_all channel =
   let () = read () in
   close_in channel; Buffer.contents buffer
 
-let display_diff diff out =
-  let module F = Omnomnom.Formatting in
-  (* The eta-expansion here is important, otherwise the formatting codes are only emitted once. *)
-  let keep = Diff.Slice.iter (fun x -> Format.fprintf out " %s@\n" x)
-  and remove = Diff.Slice.iter (fun x -> F.printf F.(DullColor Red) out "-%s@\n" x)
-  and add = Diff.Slice.iter (fun x -> F.printf F.(DullColor Green) out "+%s@\n" x) in
-  Diff.fold ~keep ~add ~remove diff
-
 let compare ~regenerate ~directory ~output_name ~output_actual =
   let output_path = Filename.concat directory output_name in
   let exists = Sys.file_exists output_path in
@@ -52,7 +44,7 @@ let compare ~regenerate ~directory ~output_name ~output_actual =
         output_string channel output_actual;
         close_out channel )
     in
-    result ~message:(display_diff diff) (Failed { backtrace = None })
+    result ~message:(Fun.flip Diff.pp_diff diff) (Failed { backtrace = None })
 
 let run ~regenerate ~action ~directory ~input_name ~output_name =
   let input_contents = Filename.concat directory input_name |> open_in |> read_all in

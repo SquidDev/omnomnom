@@ -1,14 +1,29 @@
 (executable
- (name test)
+ (name example)
+ (modules example)
+ (libraries omnomnom omnomnom.alcotest omnomnom.golden omnomnom.junit
+   omnomnom.qcheck alcotest qcheck-core))
+
+(executable
+ (name main)
+ (modules main)
  (libraries omnomnom omnomnom.alcotest omnomnom.golden omnomnom.junit
    omnomnom.qcheck alcotest qcheck-core))
 
 (rule
  (alias example)
  (deps
-  test.exe
+  (:exe example.exe)
   (source_tree data))
  (action
-  (run ./test.exe --base-dir "../" --display --junit)))
+  (run %{exe} --base-dir "../" --display --junit)))
+
+(rule
+ (alias runtest)
+ (deps
+  (:exe main.exe)
+  (source_tree data))
+ (action
+  (run %{exe} --base-dir "../")))
 
 (data_only_dirs data)

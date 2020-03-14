@@ -27,6 +27,7 @@ let () =
                  Printf.printf "Hello from stdout!\n";
                  Printf.eprintf "  and stderr.\n";
                  ());
+             simple_test "Will take a bit longer to run" (fun () -> Unix.sleepf 0.3);
              pending "A test which needs to be written." ()
            ];
          group "QCheck tests"

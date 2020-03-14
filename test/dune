@@ -2,7 +2,7 @@
  (name example)
  (modules example)
  (libraries omnomnom omnomnom.alcotest omnomnom.golden omnomnom.junit
-   omnomnom.qcheck alcotest qcheck-core))
+   omnomnom.qcheck alcotest qcheck-core unix))
 
 (executable
  (name main)

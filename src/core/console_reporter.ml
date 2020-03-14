@@ -4,6 +4,7 @@ module F = Formatting
 
 type display =
   | Tests
+  | NoisyTests
   | Groups
   | Nothing
 
@@ -19,7 +20,9 @@ let options =
   let open Cmdliner.Arg in
   let display =
     value
-    & opt ~vopt:Tests (enum [ ("tests", Tests); ("groups", Groups); ("none", Nothing) ]) Nothing
+    & opt ~vopt:Tests
+        (enum [ ("tests", Tests); ("groups", Groups); ("noisy", NoisyTests); ("none", Nothing) ])
+        Nothing
     & info ~docs:"Console Reporter" ~doc:"What information to output when running tests."
         [ "display" ]
   in
@@ -178,11 +181,16 @@ let print_results { display; base_dir; _ } out results =
     | Failed _ | Errored _ -> false
   in
   let format_test name { outcome; message; _ } =
+    let show =
+      match (is_success outcome, display) with
+      | false, _ -> true (* Failing tests always show *)
+      | true, Tests -> true (* Tests always show *)
+      | true, NoisyTests -> Option.is_some message
+      | true, (Nothing | Groups) -> false
+    in
     ( (if is_success outcome then 1 else 0),
       1,
-      if is_success outcome && display <> Tests && Option.is_none message then
-        (* Skip tests which passed when in a quieter mode.. *)
-        None
+      if not show then None
       else
         (* Otherwise include the test name. *)
         Some

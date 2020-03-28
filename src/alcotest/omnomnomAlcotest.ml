@@ -35,6 +35,8 @@ let of_alcotest_case ((name, speed, run) : unit A.test_case) =
             | _ -> result ~message:(Printexc.to_string e |> msg) (Errored { backtrace }) )
     end : Test )
 
+let mk_alcotest_case name speed run = of_alcotest_case (A.test_case name speed run)
+
 let of_alcotest ((name, test) : unit A.test) = group name (List.map of_alcotest_case test)
 
 let of_alcotests name tests = group name (List.map of_alcotest tests)

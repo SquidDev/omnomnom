@@ -73,25 +73,28 @@ end
 (** An alias over {!Test}, so you don't have to continuously use the module keyword. *)
 type test = (module Test)
 
+(** A collection of tests which may be executed, or merged into a larger collection using {!group}. *)
+type tests = test tree
+
 (** Create a test tree from a name and single test case. *)
-val test_case : string -> test -> test tree
+val test_case : string -> test -> tests
 
 (** Create a new test group from several child test trees. *)
-val group : string -> test tree list -> test tree
+val group : string -> tests list -> tests
 
 (** Create a simple test case from a function.
 
     This test accepts no options (and so cannot be configured) and returns the result of executing
     it. *)
-val test : string -> (unit -> result) -> test tree
+val test : string -> (unit -> result) -> tests
 
 (** Create a new test case from an action.
 
     This will pass if it completes, or error if it throws an exception. *)
-val simple_test : string -> (unit -> unit) -> test tree
+val simple_test : string -> (unit -> unit) -> tests
 
 (** Create a "pending" test.
 
     This is one which has not yet been written, or whose functionality is currently broken. It will
     finish immediately and return {!Skipped}. *)
-val pending : string -> 'a -> test tree
+val pending : string -> 'a -> tests

@@ -206,9 +206,10 @@ let print_results { display; base_dir; timing; _ } out results =
     | Failed _ | Errored _ -> false
   in
   let pp_time out time =
-    if not timing then () else
-    let time = Mtime.Span.to_s time in
-    if time >= 0.01 then F.printf F.(DullColor Magenta) out " took %.2fs" time;
+    if not timing then ()
+    else
+      let time = Mtime.Span.to_s time in
+      if time >= 0.01 then F.printf F.(DullColor Magenta) out " took %.2fs" time
   in
 
   let write_test name { outcome; message; time; _ } () =

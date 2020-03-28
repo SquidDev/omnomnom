@@ -39,6 +39,8 @@ end
 
 type test = (module Test)
 
+type tests = test tree
+
 let test_case name test = TestCase (name, test)
 
 let group name tests = TestGroup (name, tests)

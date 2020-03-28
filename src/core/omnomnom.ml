@@ -43,7 +43,7 @@ module Ingredients = struct
 end
 
 (** Run a series of tests, with the provided reporter. *)
-let run ?(reporter = Ingredients.console_reporter) (tests : test tree) : unit =
+let run ?(reporter = Ingredients.console_reporter) (tests : tests) : unit =
   let module Reporter = (val reporter) in
   let output_file = Filename.temp_file "omnomnom-" "-output" in
   let rec build_tree tasks = function

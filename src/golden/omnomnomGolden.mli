@@ -14,7 +14,7 @@ open Omnomnom.Tests
 (** Create a golden test file which has no input file, merely producing an output.
 
     The function will simply be applied with the same value as [output_name] *)
-val of_output : (name:string -> string) -> directory:string -> output_name:string -> test tree
+val of_output : (name:string -> string) -> directory:string -> output_name:string -> tests
 
 (** The function to apply to the input file's contents. Should simply return the computed result.
 
@@ -23,7 +23,7 @@ val of_output : (name:string -> string) -> directory:string -> output_name:strin
 type process = name:string -> string -> string
 
 (** Create a golden test using using the name of the input file and the output "golden" file. *)
-val of_file : process -> directory:string -> input_name:string -> output_name:string -> test tree
+val of_file : process -> directory:string -> input_name:string -> output_name:string -> tests
 
 (** Create zero or more golden tests from files with a specific extension within the directory.
 
@@ -42,4 +42,4 @@ val of_directory :
   directory:string ->
   extension:string ->
   unit ->
-  test tree
+  tests

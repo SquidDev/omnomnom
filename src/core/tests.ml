@@ -45,14 +45,10 @@ let test_case name test = TestCase (name, test)
 
 let group name tests = TestGroup (name, tests)
 
-let basic_options = Cmdliner.Term.const ()
-
 let test name fn =
   test_case name
     ( module struct
-      type options = unit
-
-      let options = basic_options
+      include Core.NoConfiguration
 
       let run = fn
     end : Test )

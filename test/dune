@@ -6,9 +6,10 @@
 
 (executable
  (name main)
- (modules main)
+ (modules
+  (:standard \ example))
  (libraries omnomnom omnomnom.alcotest omnomnom.golden omnomnom.junit
-   omnomnom.qcheck alcotest qcheck-core))
+   omnomnom.qcheck alcotest qcheck-core fmt cmdliner))
 
 (rule
  (alias example)

@@ -18,3 +18,21 @@ end
 
 (** A convenient type alias for first-class {!Reporter} instances. *)
 type reporter = (module Reporter)
+
+(** Filters may modify the tests to be executed. Generally this should only filter or rearrange the
+    tests to be executed. *)
+module type Filter = sig
+  include Core.Configurable
+
+  (**Filter the current test tree. Note, while there is no requirement that the structure of the
+     tree is preserved, we recommend it. *)
+  val filter : options -> 'a Tests.tree -> 'a Tests.tree
+
+  (** Called after all tests have executed. This may be used to perform some final processing of the
+      results. It should {i not} be used to display or report test results, use a {!Reporter} for
+      that. *)
+  val results : options -> Tests.result Tests.tree -> unit
+end
+
+(** A convenient type alias for first-class {!Filter} instances. *)
+type filter = (module Filter)

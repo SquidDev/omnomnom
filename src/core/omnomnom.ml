@@ -6,9 +6,10 @@ module Tests = Tests
 
 module Ingredients = struct
   include Ingredients
-  module ConsoleReporter = Console_reporter
 
   let console_reporter : reporter = (module Console_reporter)
+
+  let pattern_filter : filter = (module Pattern_filter)
 
   let void_reporter : reporter =
     ( module struct
@@ -17,15 +18,28 @@ module Ingredients = struct
       let run () = None
     end )
 
-  let compose_reporters left right =
+  let void_filter : filter =
+    ( module struct
+      include Core.NoConfiguration
+
+      let filter () x = x
+
+      let results () _ = ()
+    end )
+
+  module ComposeOptions (L : Configurable) (R : Configurable) = struct
+    type options = L.options * R.options
+
+    let options =
+      let open Cmdliner.Term in
+      const (fun a b -> (a, b)) $ L.options $ R.options
+  end
+
+  let compose_reporters left right : reporter =
     let module Left = (val left : Reporter) in
     let module Right = (val right : Reporter) in
     ( module struct
-      type options = Left.options * Right.options
-
-      let options =
-        let open Cmdliner.Term in
-        const (fun a b -> (a, b)) $ Left.options $ Right.options
+      include ComposeOptions (Left) (Right)
 
       let run (a, b) =
         match (Left.run a, Right.run b) with
@@ -36,25 +50,42 @@ module Ingredients = struct
               (fun p ->
                 let a = a p and b = b p in
                 fun r -> a r; b r)
-    end : Reporter )
+    end )
+
+  let compose_filters left right : filter =
+    let module Left = (val left : Filter) in
+    let module Right = (val right : Filter) in
+    ( module struct
+      include ComposeOptions (Left) (Right)
+
+      let filter (a, b) xs = Left.filter a xs |> Right.filter b
+
+      let results (a, b) xs = Left.results a xs; Right.results b xs
+    end )
+
+  let fold ~default ~compose = function
+    | [] -> default
+    | x :: xs -> List.fold_left compose x xs
 end
 
-let run ?(reporters = [ Ingredients.console_reporter ]) (tests : tests) : unit =
-  let reporter =
-    match reporters with
-    | [] -> Ingredients.void_reporter
-    | x :: xs -> List.fold_left Ingredients.compose_reporters x xs
-  in
-  let module Reporter = (val reporter) in
-  let output_file = Filename.temp_file "omnomnom-" "-output" in
+let rec map_term f = function
+  | [] -> Cmdliner.Term.const []
+  | x :: xs -> Cmdliner.Term.(const List.cons $ f x $ map_term f xs)
+
+let rec add_options = function
+  | TestCase (name, test) ->
+      let module Test = (val test : Test) in
+      let mk args = TestCase (name, fun () -> Test.run args) in
+      Cmdliner.Term.(const mk $ Test.options)
+  | TestGroup (name, tests) ->
+      let mk tests = TestGroup (name, tests) in
+      Cmdliner.Term.(const mk $ map_term add_options tests)
+
+module Runner = struct
   let rec build_tree tasks = function
-    | TestCase (name, test) ->
-        let module Test = (val test : Test) in
+    | TestCase (name, action) ->
         let source, sink = Signal.create NotStarted in
-        ( TestCase (name, sink),
-          Cmdliner.Term.(
-            const (fun args xs -> (source, fun () -> Test.run args) :: xs) $ Test.options $ tasks)
-        )
+        (TestCase (name, sink), (source, action) :: tasks)
     | TestGroup (name, children) ->
         let children, tasks =
           List.fold_left
@@ -64,11 +95,11 @@ let run ?(reporters = [ Ingredients.console_reporter ]) (tests : tests) : unit =
             ([], tasks) children
         in
         (TestGroup (name, List.rev children), tasks)
-  in
+
   let is_success = function
     | Pass | Skipped -> true
     | Failed _ | Errored _ -> false
-  in
+
   let rec finish_tree = function
     | TestCase (name, sink) -> (
       match Signal.get sink with
@@ -83,11 +114,14 @@ let run ?(reporters = [ Ingredients.console_reporter ]) (tests : tests) : unit =
             (true, []) children
         in
         (ok, TestGroup (name, List.rev children))
-  in
-  let run tests tasks options =
-    match Reporter.run options with
+
+  let main (type r f) (module Reporter : Ingredients.Reporter with type options = r)
+      (module Filter : Ingredients.Filter with type options = f) output_file tests (reporter : r)
+      (filter : f) =
+    match Reporter.run reporter with
     | None -> `Error (true, "No test reporter for these options.")
     | Some f ->
+        let tests, tasks = Filter.filter filter tests |> build_tree [] in
         let callback = f tests in
         tasks |> List.rev
         |> List.iter (fun (source, action) ->
@@ -118,7 +152,20 @@ let run ?(reporters = [ Ingredients.console_reporter ]) (tests : tests) : unit =
                finish res);
         let ok, children = finish_tree tests in
         callback children;
-        if ok then `Ok () else `Error (false, "")
+        if ok then `Ok else `Error (false, "")
+end
+
+module type S = sig
+  val tests : Tests.tests
+end
+
+let run ?(reporters = [ Ingredients.console_reporter ]) ?(filters = [ Ingredients.pattern_filter ])
+    (tests : tests) : unit =
+  let module Reporter =
+  (val Ingredients.(fold ~default:void_reporter ~compose:compose_reporters reporters))
+  in
+  let module Filter =
+  (val Ingredients.(fold ~default:void_filter ~compose:compose_filters filters))
   in
   (* Small bits of setup. *)
   Printexc.record_backtrace true;
@@ -129,6 +176,11 @@ let run ?(reporters = [ Ingredients.console_reporter ]) (tests : tests) : unit =
     let doc = "A fancy test runner based on Tasty." in
     info "omnomnom" ~doc ~exits:default_exits
   in
-  let tests, tasks = build_tree (const []) tests in
-  let res = eval ~catch:true (const (run tests) $ tasks $ Reporter.options, info) in
+  let output_file = Filename.temp_file "omnomnom-" "-output" in
+  let res =
+    eval ~catch:true
+      ( const (Runner.main (module Reporter) (module Filter) output_file)
+        $ add_options tests $ Reporter.options $ Filter.options,
+        info )
+  in
   Sys.remove output_file; exit res

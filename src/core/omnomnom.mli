@@ -28,17 +28,21 @@ module Ingredients : sig
   include module type of Ingredients
 
   (** The default reporter (as used by {!run}). This prints tests progress and results to the
-      console in a colourful manner.
-
-      See {!console_reporter} for a more convenient to use version. *)
-  module ConsoleReporter : Reporter
-
-  (** The default reporter (as used by {!run}). This prints tests progress and results to the
-      console in a colourful manner.
-
-      This is a first-class module version of {!ConsoleReporter}.*)
+      console in a colourful manner. *)
   val console_reporter : reporter
+
+  val pattern_filter : filter
+end
+
+(** A template signature which may be used on a module which provides a series of tests. *)
+module type S = sig
+  (** The tests this module exposes. *)
+  val tests : Tests.tests
 end
 
 (** Run a series of tests, with the provided reporter. *)
-val run : ?reporters:Ingredients.reporter list -> Omnomnom__.Tests.tests -> unit
+val run :
+  ?reporters:Ingredients.reporter list ->
+  ?filters:Ingredients.filter list ->
+  Omnomnom__.Tests.tests ->
+  unit

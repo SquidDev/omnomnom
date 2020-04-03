@@ -6,3 +6,6 @@ module type Configurable = sig
   (** The cmdliner term which will provide these options. *)
   val options : options Cmdliner.Term.t
 end
+
+(** A {!Configurable} term which accepts no options. *)
+module NoConfiguration : Configurable with type options = unit

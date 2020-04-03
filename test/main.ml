@@ -1,7 +1,7 @@
 open Omnomnom.Tests
 
 let () =
-  Omnomnom.run ~reporter:(module Omnomnom.Ingredients.ConsoleReporter)
+  Omnomnom.run
   @@ group "omnomnom"
        [ (let work ~name old_contents =
             let open OmnomnomGolden__.Diff in

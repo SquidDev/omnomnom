@@ -1,25 +1,3 @@
-(** An OCaml test framework inspired by Tasty.
-
-    {2 Usage}
-
-    {[
-      open Omnomnom.Tests
-
-      let () =
-        Omnomnom.run
-        @@ group "omnomnom"
-             [ simple_test "Will assert a value" (fun () ->
-                   assert (List.hd [ 0 ] = 0);
-                   ());
-               simple_test "Will fail" (fun () ->
-                   let _ = List.hd [] in
-                   ());
-               pending "A test which needs to be written." ()
-             ]
-    ]} *)
-
-[@@@ocamlformat "wrap-comments=false"]
-
 open Tests
 include Core
 module Formatting = Formatting
@@ -28,22 +6,45 @@ module Tests = Tests
 
 module Ingredients = struct
   include Ingredients
+  module ConsoleReporter = Console_reporter
 
-  (** The default reporter (as used by {!run}). This prints tests progress and results to the
-      console in a colourful manner.
-
-      See {!console_reporter} for a more convenient to use version. *)
-  module ConsoleReporter : Reporter = Console_reporter
-
-  (** The default reporter (as used by {!run}). This prints tests progress and results to the
-      console in a colourful manner.
-
-      This is a first-class module version of {!ConsoleReporter}.*)
   let console_reporter : reporter = (module Console_reporter)
+
+  let void_reporter : reporter =
+    ( module struct
+      include Core.NoConfiguration
+
+      let run () = None
+    end )
+
+  let compose_reporters left right =
+    let module Left = (val left : Reporter) in
+    let module Right = (val right : Reporter) in
+    ( module struct
+      type options = Left.options * Right.options
+
+      let options =
+        let open Cmdliner.Term in
+        const (fun a b -> (a, b)) $ Left.options $ Right.options
+
+      let run (a, b) =
+        match (Left.run a, Right.run b) with
+        | None, None -> None
+        | Some x, None | None, Some x -> Some x
+        | Some a, Some b ->
+            Some
+              (fun p ->
+                let a = a p and b = b p in
+                fun r -> a r; b r)
+    end : Reporter )
 end
 
-(** Run a series of tests, with the provided reporter. *)
-let run ?(reporter = Ingredients.console_reporter) (tests : tests) : unit =
+let run ?(reporters = [ Ingredients.console_reporter ]) (tests : tests) : unit =
+  let reporter =
+    match reporters with
+    | [] -> Ingredients.void_reporter
+    | x :: xs -> List.fold_left Ingredients.compose_reporters x xs
+  in
   let module Reporter = (val reporter) in
   let output_file = Filename.temp_file "omnomnom-" "-output" in
   let rec build_tree tasks = function

@@ -18,6 +18,3 @@ end
 
 (** A convenient type alias for first-class {!Reporter} instances. *)
 type reporter = (module Reporter)
-
-(** Compose multiple test reporters together. *)
-val compose_reporters : reporter -> reporter -> reporter

@@ -4,9 +4,7 @@ open OmnomnomAlcotest
 (* The tests *)
 
 let () =
-  Omnomnom.run
-    ~reporter:
-      Omnomnom.Ingredients.(compose_reporters (module ConsoleReporter) (module OmnomnomJUnit))
+  Omnomnom.run ~reporters:[ Omnomnom.Ingredients.console_reporter; (module OmnomnomJUnit) ]
   @@ group "omnomnom"
        [ group "Can perform golden tests"
            [ (let work ~name contents =

@@ -14,3 +14,11 @@
     -safe-string
     -g
     -annot))))
+
+(alias
+ (name everything)
+ (deps
+  (alias install)
+  (alias doc)
+  omnomnom.opam
+  test/example.exe))

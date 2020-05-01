@@ -50,7 +50,7 @@ let options =
     & opt ~vopt:Always (enum [ ("never", Never); ("always", Always); ("auto", Auto) ]) Auto
     & info ~docv:"when" ~docs:"Console Reporter"
         ~doc:"Show coloured messages. When auto, we attempt to determine if the output is a TTY."
-        [ "color"; "colour" ]
+        ~env:(env_var "OCAML_COLOR") [ "color"; "colour" ]
   in
   Term.(
     const (fun display timing colour base_dir -> { display; timing; colour; base_dir })

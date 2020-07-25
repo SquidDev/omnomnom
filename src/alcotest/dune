@@ -2,4 +2,4 @@
  (name omnomnomAlcotest)
  (public_name omnomnom.alcotest)
  (optional)
- (libraries alcotest cmdliner omnomnom))
+ (libraries alcotest alcotest.engine cmdliner omnomnom fmt))

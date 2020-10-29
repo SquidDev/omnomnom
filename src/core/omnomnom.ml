@@ -119,7 +119,9 @@ module Runner = struct
       (module Filter : Ingredients.Filter with type options = f) output_file tests (reporter : r)
       (filter : f) =
     match Reporter.run reporter with
-    | None -> `Error (true, "No test reporter for these options.")
+    | None ->
+        Printf.eprintf "No test reporter for these options.\n";
+        1
     | Some f ->
         let tests, tasks = Filter.filter filter tests |> build_tree [] in
         let callback = f tests in
@@ -152,7 +154,7 @@ module Runner = struct
                finish res);
         let ok, children = finish_tree tests in
         callback children;
-        if ok then `Ok else `Error (false, "")
+        if ok then 0 else 1
 end
 
 module type S = sig
@@ -183,4 +185,4 @@ let run ?(reporters = [ Ingredients.console_reporter ]) ?(filters = [ Ingredient
         $ add_options tests $ Reporter.options $ Filter.options,
         info )
   in
-  Sys.remove output_file; exit res
+  Sys.remove output_file; exit_status res

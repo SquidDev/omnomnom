@@ -2,7 +2,7 @@ margin = 100
 
 wrap-comments
 parse-docstrings
-doc-comments-val = before
+doc-comments = before
 
 type-decl = sparse
 break-separators = after

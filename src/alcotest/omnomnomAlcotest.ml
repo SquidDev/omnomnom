@@ -29,7 +29,8 @@ let of_alcotest_case ((name, speed, run) : unit A.test_case) =
             (* Some horrible reflection code, somewhat lifted from Printexc in order to extract
                Check_error exceptions. *)
             match e with
-            | Alcotest_engine.Core.Check_error m -> result ~message:(Fun.flip m ()) (Failed { backtrace })
+            | Alcotest_engine.Core.Check_error m ->
+                result ~message:(Fun.flip m ()) (Failed { backtrace })
             | Failure e ->
                 result ~message:(Printf.sprintf "Failure: %s" e |> msg) (Errored { backtrace })
             | _ -> result ~message:(Printexc.to_string e |> msg) (Errored { backtrace }) )

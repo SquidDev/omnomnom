@@ -14,18 +14,18 @@ let writable_file =
 
 let get_message message { backtrace } =
   let buffer = Buffer.create 16 in
-  ( match message with
+  (match message with
   | None -> ()
   | Some msg ->
       let formatter = Format.formatter_of_buffer buffer in
       msg formatter;
       Format.pp_force_newline formatter ();
-      Format.pp_print_flush formatter () );
-  ( match backtrace with
+      Format.pp_print_flush formatter ());
+  (match backtrace with
   | None -> ()
   | Some bt ->
       Buffer.add_string buffer (Printexc.raw_backtrace_to_string bt);
-      Buffer.add_char buffer '\n' );
+      Buffer.add_char buffer '\n');
   Buffer.contents buffer
 
 let rec get_result classname = function

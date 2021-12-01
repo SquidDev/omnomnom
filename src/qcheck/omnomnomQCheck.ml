@@ -1,6 +1,6 @@
 open Omnomnom.Tests
-module Q = QCheck.Test
-module R = QCheck.TestResult
+module Q = QCheck2.Test
+module R = QCheck2.TestResult
 
 type opts = { seed : int } [@@unbox]
 
@@ -23,17 +23,17 @@ let rec pp_list fmt f = function
 
 let of_qcheck (Q.Test cell) =
   test_case (Q.get_name cell)
-    ( module struct
+    (module struct
       type options = opts
 
       let options = options
 
       let run { seed } =
         let rand = Random.State.make [| seed |] in
-        let { R.count; state; _ } = Q.check_cell cell ~rand in
+        let r = Q.check_cell cell ~rand in
+        let count = R.get_count r and state = R.get_state r in
         let print_failure f { R.instance; shrink_steps; msg_l } =
-          let arb = Q.get_arbitrary cell in
-          Format.fprintf f "%s" (Q.print_instance arb instance);
+          Format.fprintf f "%s" (Q.print_instance cell instance);
           if shrink_steps > 0 then Format.fprintf f " (after %d shrink steps)" shrink_steps;
           List.iter (Format.fprintf f "%s\n") msg_l
         in
@@ -53,4 +53,4 @@ let of_qcheck (Q.Test cell) =
               (Errored { backtrace = None })
         | Failed_other { msg } ->
             result ~message:(fun f -> Format.fprintf f "%s" msg) (Errored { backtrace = None })
-    end : Test )
+    end : Test)

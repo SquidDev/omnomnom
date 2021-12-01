@@ -30,7 +30,7 @@ let filter ps tests =
         else
           match List.filter_map go tests with
           | [] -> None
-          | tests -> Some (TestGroup (name, tests)) )
+          | tests -> Some (TestGroup (name, tests)))
   in
   match ps with
   | [] -> tests
@@ -39,6 +39,6 @@ let filter ps tests =
     | Some tests -> tests
     | None ->
         let (TestGroup (name, _) | TestCase (name, _)) = tests in
-        TestGroup (name, []) )
+        TestGroup (name, []))
 
 let results _ _ = ()

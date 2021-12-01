@@ -42,7 +42,7 @@ let compare ~regenerate ~directory ~output_name ~output_actual =
       if regenerate then (
         let channel = open_out output_path in
         output_string channel output_actual;
-        close_out channel )
+        close_out channel)
     in
     result ~message:(Fun.flip Diff.pp_diff diff) (Failed { backtrace = None })
 
@@ -53,13 +53,13 @@ let run ~regenerate ~action ~directory ~input_name ~output_name =
 
 let make name action =
   test_case name
-    ( module struct
+    (module struct
       type options = opts
 
       let options = options
 
       let run = action
-    end : Test )
+    end : Test)
 
 let of_output action ~directory ~output_name =
   make output_name (fun { regenerate } ->

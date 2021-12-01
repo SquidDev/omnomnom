@@ -165,7 +165,7 @@ let format_trace ~base_dir ~(out : Format.formatter) x =
                 with End_of_file -> None
               in
               close_in ch; res
-            with Sys_error _ -> None )
+            with Sys_error _ -> None)
           | x, _ -> x)
         None
   >>= (fun (line, before, contents, after) ->
@@ -221,11 +221,11 @@ let print_results { display; base_dir; timing; _ } out results =
     in
     F.printf style out "%s" icon;
     Format.fprintf out " %s%a" name pp_time time;
-    ( match message with
+    (match message with
     | None -> ()
     | Some message ->
         Format.pp_force_newline out ();
-        pp_indent out 2 (fun () -> message out) );
+        pp_indent out 2 (fun () -> message out));
     match outcome with
     | Pass | Skipped -> ()
     | Failed e | Errored e -> (
@@ -237,7 +237,7 @@ let print_results { display; base_dir; timing; _ } out results =
           (* Print the message and backtrace. *)
           format_trace ~base_dir ~out backtrace;
           Format.pp_force_newline out ();
-          Format.pp_print_text out (Printexc.raw_backtrace_to_string backtrace) )
+          Format.pp_print_text out (Printexc.raw_backtrace_to_string backtrace))
   in
   let format_test name ({ outcome; message; time; _ } as test) =
     let show =
@@ -283,9 +283,9 @@ let print_results { display; base_dir; timing; _ } out results =
               total = group.total + child.total;
               time = Mtime.Span.add group.time child.time;
               write =
-                ( match child.write with
+                (match child.write with
                 | None -> group.write
-                | Some x -> x :: group.write )
+                | Some x -> x :: group.write)
             })
           children
           { passed = 0; total = 0; time = Mtime.Span.zero; write = [] }

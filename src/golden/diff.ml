@@ -54,7 +54,7 @@ let rec diff olds news =
                     this_overlap.(old_index) <- this;
                     if this > !sub_length then (
                       sub_length := this;
-                      sub_range := (old_index - this + 1, new_index - this + 1) ));
+                      sub_range := (old_index - this + 1, new_index - this + 1)));
              Array.blit this_overlap 0 overlap 0 (Array.length this_overlap));
 
       if !sub_length = 0 then Seq [ Remove olds; Add news ]

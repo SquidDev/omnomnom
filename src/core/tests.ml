@@ -47,11 +47,11 @@ let group name tests = TestGroup (name, tests)
 
 let test name fn =
   test_case name
-    ( module struct
+    (module struct
       include Core.NoConfiguration
 
       let run = fn
-    end : Test )
+    end : Test)
 
 let simple_test name fn = test name (fun () -> fn (); result Pass)
 

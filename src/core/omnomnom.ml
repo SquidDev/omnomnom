@@ -12,20 +12,20 @@ module Ingredients = struct
   let pattern_filter : filter = (module Pattern_filter)
 
   let void_reporter : reporter =
-    ( module struct
+    (module struct
       include Core.NoConfiguration
 
       let run () = None
-    end )
+    end)
 
   let void_filter : filter =
-    ( module struct
+    (module struct
       include Core.NoConfiguration
 
       let filter () x = x
 
       let results () _ = ()
-    end )
+    end)
 
   module ComposeOptions (L : Configurable) (R : Configurable) = struct
     type options = L.options * R.options
@@ -38,7 +38,7 @@ module Ingredients = struct
   let compose_reporters left right : reporter =
     let module Left = (val left : Reporter) in
     let module Right = (val right : Reporter) in
-    ( module struct
+    (module struct
       include ComposeOptions (Left) (Right)
 
       let run (a, b) =
@@ -50,18 +50,18 @@ module Ingredients = struct
               (fun p ->
                 let a = a p and b = b p in
                 fun r -> a r; b r)
-    end )
+    end)
 
   let compose_filters left right : filter =
     let module Left = (val left : Filter) in
     let module Right = (val right : Filter) in
-    ( module struct
+    (module struct
       include ComposeOptions (Left) (Right)
 
       let filter (a, b) xs = Left.filter a xs |> Right.filter b
 
       let results (a, b) xs = Left.results a xs; Right.results b xs
-    end )
+    end)
 
   let fold ~default ~compose = function
     | [] -> default
@@ -104,7 +104,7 @@ module Runner = struct
     | TestCase (name, sink) -> (
       match Signal.get sink with
       | Finished r -> (is_success r.outcome, TestCase (name, r))
-      | _ -> failwith (Printf.sprintf "Test %S hasn't finished" name) )
+      | _ -> failwith (Printf.sprintf "Test %S hasn't finished" name))
     | TestGroup (name, children) ->
         let ok, children =
           List.fold_left

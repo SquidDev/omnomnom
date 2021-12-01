@@ -2,7 +2,7 @@ open Omnomnom.Tests
 open OmnomnomAlcotest
 
 let tree : unit tree Alcotest.testable =
-  ( module struct
+  (module struct
     type t = unit tree
 
     let rec pp out = function
@@ -11,7 +11,7 @@ let tree : unit tree Alcotest.testable =
           Fmt.(fmt "%a[%a]" out string name (box (list ~sep:comma pp)) tests)
 
     let equal = ( = )
-  end )
+  end)
 
 let filter patterns tests =
   let module M = (val Omnomnom.Ingredients.pattern_filter) in

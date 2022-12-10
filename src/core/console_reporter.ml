@@ -32,7 +32,7 @@ let options =
         [ "display" ]
   in
   let base_dir_env =
-    Term.env_info ~docs:"Console Reporter"
+    Cmd.Env.info ~docs:"Console Reporter"
       ~doc:"The base directory from which to resolve source files." "OM_BASE_DIR"
   in
   let base_dir =
@@ -50,7 +50,7 @@ let options =
     & opt ~vopt:Always (enum [ ("never", Never); ("always", Always); ("auto", Auto) ]) Auto
     & info ~docv:"when" ~docs:"Console Reporter"
         ~doc:"Show coloured messages. When auto, we attempt to determine if the output is a TTY."
-        ~env:(env_var "OCAML_COLOR") [ "color"; "colour" ]
+        ~env:(Cmd.Env.info "OCAML_COLOR") [ "color"; "colour" ]
   in
   Term.(
     const (fun display timing colour base_dir -> { display; timing; colour; base_dir })
@@ -208,7 +208,7 @@ let print_results { display; base_dir; timing; _ } out results =
   let pp_time out time =
     if not timing then ()
     else
-      let time = Mtime.Span.to_s time in
+      let time = Mtime.Span.to_float_ns time *. 1e-9 in
       if time >= 0.01 then F.printf F.(DullColor Magenta) out " took %.2fs" time
   in
 

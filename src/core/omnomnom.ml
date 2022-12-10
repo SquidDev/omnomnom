@@ -8,7 +8,6 @@ module Ingredients = struct
   include Ingredients
 
   let console_reporter : reporter = (module Console_reporter)
-
   let pattern_filter : filter = (module Pattern_filter)
 
   let void_reporter : reporter =
@@ -23,7 +22,6 @@ module Ingredients = struct
       include Core.NoConfiguration
 
       let filter () x = x
-
       let results () _ = ()
     end)
 
@@ -59,7 +57,6 @@ module Ingredients = struct
       include ComposeOptions (Left) (Right)
 
       let filter (a, b) xs = Left.filter a xs |> Right.filter b
-
       let results (a, b) xs = Left.results a xs; Right.results b xs
     end)
 
@@ -164,25 +161,24 @@ end
 let run ?(reporters = [ Ingredients.console_reporter ]) ?(filters = [ Ingredients.pattern_filter ])
     (tests : tests) : unit =
   let module Reporter =
-  (val Ingredients.(fold ~default:void_reporter ~compose:compose_reporters reporters))
+    (val Ingredients.(fold ~default:void_reporter ~compose:compose_reporters reporters))
   in
-  let module Filter =
-  (val Ingredients.(fold ~default:void_filter ~compose:compose_filters filters))
+  let module Filter = (val Ingredients.(fold ~default:void_filter ~compose:compose_filters filters))
   in
   (* Small bits of setup. *)
   Printexc.record_backtrace true;
   Random.self_init ();
   (* And run! *)
-  let open Cmdliner.Term in
+  let output_file = Filename.temp_file "omnomnom-" "-output" in
+  let term =
+    let open Cmdliner.Term in
+    const (Runner.main (module Reporter) (module Filter) output_file)
+    $ add_options tests $ Reporter.options $ Filter.options
+  in
+  let open Cmdliner.Cmd in
   let info =
     let doc = "A fancy test runner based on Tasty." in
-    info "omnomnom" ~doc ~exits:default_exits
+    v (info ~doc "omnomnom") term
   in
-  let output_file = Filename.temp_file "omnomnom-" "-output" in
-  let res =
-    eval ~catch:true
-      ( const (Runner.main (module Reporter) (module Filter) output_file)
-        $ add_options tests $ Reporter.options $ Filter.options,
-        info )
-  in
-  Sys.remove output_file; exit_status res
+  let res = eval' ~catch:true info in
+  Sys.remove output_file; exit res

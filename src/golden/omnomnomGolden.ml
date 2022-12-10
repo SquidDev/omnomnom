@@ -1,7 +1,6 @@
 open Omnomnom.Tests
 
 type process = name:string -> string -> string
-
 type opts = { regenerate : bool } [@@unbox]
 
 let options =
@@ -57,7 +56,6 @@ let make name action =
       type options = opts
 
       let options = options
-
       let run = action
     end : Test)
 

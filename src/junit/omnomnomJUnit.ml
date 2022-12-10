@@ -31,7 +31,7 @@ let get_message message { backtrace } =
 let rec get_result classname = function
   | TestCase (name, { outcome; message; time }) ->
       let open Junit.Testcase in
-      let time = Mtime.Span.to_s time in
+      let time = Mtime.Span.to_float_ns time *. 1e-9 in
       let case =
         match outcome with
         | Pass -> pass ~name ~classname ~time

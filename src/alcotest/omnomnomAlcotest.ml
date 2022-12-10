@@ -6,7 +6,7 @@ type opt = { quick : bool }
 let options =
   let open Cmdliner in
   let open Cmdliner.Arg in
-  let env = Arg.env_var "ALCOTEST_QUICK_TESTS" in
+  let env = Cmd.Env.info "ALCOTEST_QUICK_TESTS" in
   let quick =
     value & flag & info ~docs:"Alcotest" ~doc:"Run only the quick tests." ~env [ "q"; "quicktests" ]
   in
@@ -36,7 +36,5 @@ let of_alcotest_case ((name, speed, run) : unit A.test_case) =
     end : Test)
 
 let mk_alcotest_case name speed run = of_alcotest_case (A.test_case name speed run)
-
 let of_alcotest ((name, test) : unit A.test) = group name (List.map of_alcotest_case test)
-
 let of_alcotests name tests = group name (List.map of_alcotest tests)

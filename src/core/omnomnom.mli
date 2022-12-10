@@ -19,7 +19,6 @@
     ]} *)
 
 include module type of Core
-
 module Formatting = Formatting
 module Signal = Signal
 module Tests = Tests

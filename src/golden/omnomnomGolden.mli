@@ -34,7 +34,9 @@ val of_file : process -> directory:string -> input_name:string -> output_name:st
     For instance, the following will use all [.json] files within the [test-data] directory as
     inputs.
 
-    {[ of_directory ~process:do_something ~directory:"test-data" ~extension:"json" () ]} *)
+    {[
+      of_directory ~process:do_something ~directory:"test-data" ~extension:"json" ()
+    ]} *)
 val of_directory :
   process ->
   ?group:string ->

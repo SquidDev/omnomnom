@@ -18,7 +18,7 @@
     (dune (>= 2.0))
     (odoc :with-doc)
     (cmdliner (>= 1.0.4))
-    (mtime (>= 1.2.0))
+    (mtime (>= 2.0.0))
     (junit (and :with-test (>= 2.0.0)))
     (alcotest (and :with-test (>= 1.2.0)))
     (qcheck-core (and :with-test (>= 0.10))))

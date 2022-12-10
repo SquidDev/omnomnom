@@ -39,7 +39,6 @@ let () =
               ]);
          (let module To_test = struct
             let capit letter = Char.uppercase_ascii letter
-
             let plus int_list = List.fold_left (fun a b -> a + b) 0 int_list
           end in
          let capit () =

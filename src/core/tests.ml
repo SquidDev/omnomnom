@@ -38,11 +38,9 @@ module type Test = sig
 end
 
 type test = (module Test)
-
 type tests = test tree
 
 let test_case name test = TestCase (name, test)
-
 let group name tests = TestGroup (name, tests)
 
 let test name fn =
@@ -54,5 +52,4 @@ let test name fn =
     end : Test)
 
 let simple_test name fn = test name (fun () -> fn (); result Pass)
-
 let pending name _ = test name (fun () -> result Skipped)

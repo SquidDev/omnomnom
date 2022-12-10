@@ -4,7 +4,6 @@ type 'a t =
   }
 
 type 'a source = 'a t
-
 type 'a sink = 'a t
 
 let create x =

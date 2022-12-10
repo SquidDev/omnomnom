@@ -10,7 +10,6 @@ module Slice = struct
     }
 
   let of_array array = { array; start = 0; length = Array.length array }
-
   let length x = x.length
 
   let iter f { array; start; length } =

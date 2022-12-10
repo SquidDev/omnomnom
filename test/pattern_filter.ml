@@ -16,16 +16,15 @@ let tree : unit tree Alcotest.testable =
 let filter patterns tests =
   let module M = (val Omnomnom.Ingredients.pattern_filter) in
   match
-    Cmdliner.Term.(
-      eval
-        ~argv:(List.map (fun f -> "-p" ^ f) patterns |> List.cons "test" |> Array.of_list)
-        (M.options, info "test"))
+    let open Cmdliner in
+    Cmd.v (Cmd.info "test") M.options
+    |> Cmd.eval_value
+         ~argv:(List.map (fun f -> "-p" ^ f) patterns |> List.cons "test" |> Array.of_list)
   with
-  | `Ok patterns -> M.filter patterns tests
+  | Ok (`Ok patterns) -> M.filter patterns tests
   | _ -> Alcotest.fail "Cannot parse command line"
 
 let group name xs = TestGroup (name, xs)
-
 let test name = TestCase (name, ())
 
 let tests =
